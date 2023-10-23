@@ -2,8 +2,25 @@
 
 wpFolder="/home/coen/Pictures/wallpapers"
 confFile="/home/coen/dotfiles/hypr/hyprpaper.conf"
-randomWallpaper=$(ls ~/Pictures/wallpapers | shuf -n 1)
+wpCurr=$(cat "$confFile" | head -1 | awk -F "/" '{print $NF}')
 
-printf "preload = %s/%s\n\n" "$wpFolder" "$randomWallpaper" > "$confFile"
+find_random () {
+	randomWallpaper=$(ls "$wpFolder" | shuf -n 1)
+	if [ "$randomWallpaper" = "$wpCurr" ]; then
+		find_random
+	fi
+}
+
+find_random
+
+printf "preload = %s/%s\n" "$wpFolder" "$randomWallpaper" > "$confFile"
 printf "wallpaper = DP-1,%s/%s\n" "$wpFolder" "$randomWallpaper" >> "$confFile"
 printf "wallpaper = DP-2,%s/%s" "$wpFolder" "$randomWallpaper" >> "$confFile"
+
+case $1 in
+	"--new")
+		hyprctl hyprpaper unload all
+		killall hyprpaper
+		hyprpaper &
+		;;
+esac
