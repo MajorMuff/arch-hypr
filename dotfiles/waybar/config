@@ -2,9 +2,9 @@
     "layer": "top",
     "position": "top",
     "height": 29,
-    "width": 2540,
+    "width": 2544,
     "spacing": 4,
-    "margin-top": 10,
+    "margin-top": 8,
 
     "modules-left": [
     	"hyprland/workspaces",

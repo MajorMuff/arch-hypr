@@ -1,12 +1,17 @@
 #!/bin/bash
 
-entries="⇠ Logout\n⭮ Reboot\n⏻ Shutdown"
+if pidof wofi; then
+	killall wofi
+	exit 0
+fi
 
-selected=$(echo -e $entries | wofi --style ~/dotfiles/wofi/powermenu.css --conf ~/dotfiles/wofi/powermenu.conf --cache-file /dev/null > awk '{print tolower($0)}')
+entries="Logout\nReboot\nShutdown"
+
+selected=$(printf "$entries" | wofi --style ~/dotfiles/wofi/powermenu.css --conf ~/dotfiles/wofi/powermenu.conf --cache-file /dev/null > awk '{print tolower($2)}')
 
 case $selected in
   logout)
-    echo "logout" ;;
+    notify-send "Logout" ;;
   reboot)
     echo "reboot" ;;
   shutdown)
