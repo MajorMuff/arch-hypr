@@ -1,0 +1,7 @@
+#!/bin/bash
+
+case "$1" in
+	"--increase") pactl -- set-sink-volume 0 +2% ;;
+	"--decrease") pactl -- set-sink-volume 0 -2% ;;
+	"--mute") pactl -- set-sink-mute 0 toggle ;;
+esac

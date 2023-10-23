@@ -1,0 +1,9 @@
+#!/bin/bash
+
+wpFolder="/home/coen/Pictures/wallpapers"
+confFile="/home/coen/dotfiles/hypr/hyprpaper.conf"
+randomWallpaper=$(ls ~/Pictures/wallpapers | shuf -n 1)
+
+printf "preload = %s/%s\n\n" "$wpFolder" "$randomWallpaper" > "$confFile"
+printf "wallpaper = DP-1,%s/%s\n" "$wpFolder" "$randomWallpaper" >> "$confFile"
+printf "wallpaper = DP-2,%s/%s" "$wpFolder" "$randomWallpaper" >> "$confFile"

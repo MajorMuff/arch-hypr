@@ -1,0 +1,3 @@
+#!/bin/bash
+
+printf "%s <span color=\"#666666\">%s</span>" $(date '+%H:%M') $(date '+%Y-%m-%d')

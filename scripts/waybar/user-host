@@ -1,0 +1,3 @@
+#!/bin/bash
+
+printf "%s<span color=\"#4AB8BC\">@</span>%s" "$(whoami)" "$HOSTNAME"

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+entries="⇠ Logout\n⭮ Reboot\n⏻ Shutdown"
+
+selected=$(echo -e $entries | wofi --style ~/dotfiles/wofi/powermenu.css --conf ~/dotfiles/wofi/powermenu.conf --cache-file /dev/null > awk '{print tolower($0)}')
+
+case $selected in
+  logout)
+    echo "logout" ;;
+  reboot)
+    echo "reboot" ;;
+  shutdown)
+    echo "shutdown" ;;
+esac

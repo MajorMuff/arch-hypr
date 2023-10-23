@@ -1,0 +1,32 @@
+#!/bin/bash
+ 
+SAVEDIR=/tmp
+FILENAME="$SAVEDIR/$(date +'%Y%m%d-%H%M%S').png"
+ 
+shot_selection () {
+	if grim -g "$(slurp)" "$FILENAME"; then
+		wl-copy < "$FILENAME"
+		notify-send "Screenshot" "Copied to clipboard."
+		exit 0
+	else
+		notify-send 'Error saving file'
+		exit 1
+	fi
+}
+		
+shot_fullscreen () { 
+	if grim "$FILENAME"; then
+		wl-copy < "$FILENAME"
+		notify-send "Screenshot" "Copied to clipboard."
+		exit 0
+	else
+		notify-send 'Error saving file'
+		exit 1
+	fi
+}
+
+
+case "$1" in
+	"--selection") shot_selection ;;
+	"--fullscreen") shot_fullscreen ;;
+esac
