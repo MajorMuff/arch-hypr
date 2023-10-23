@@ -74,12 +74,12 @@
 
 	"custom/cpu": {
 		"exec": "~/scripts/waybar/cpu",
-		"interval": 2
+		"interval": 4
 	},
 	
 	"custom/mem": {
 		"exec": "~/scripts/waybar/mem",
-		"interval": 2
+		"interval": 4
 	},
 
     "keyboard-state": {
