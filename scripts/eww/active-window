@@ -1,0 +1,4 @@
+#!/bin/bash
+
+titleStr=$(hyprctl activewindow | grep "title")
+printf '%s' "${titleStr#* }"

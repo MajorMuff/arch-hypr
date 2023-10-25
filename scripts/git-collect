@@ -4,5 +4,6 @@ cp ~/.config/hypr/* ~/github/dotfiles/hypr/
 cp ~/.config/waybar/* ~/github/dotfiles/waybar/
 cp ~/.config/wofi/style.css ~/github/dotfiles/wofi/
 cp ~/.config/dunst/dunstrc ~/github/dotfiles/
+cp ~/.config/eww/* ~/github/dotfiles/eww/
 
 cp -r ~/scripts ~/github/

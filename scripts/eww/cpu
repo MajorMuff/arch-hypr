@@ -1,0 +1,3 @@
+#!/bin/bash
+
+printf "%02d%%" $(mpstat --dec=0 | tail -1 | awk '{print $NF}' | awk '{print 100-$1}')

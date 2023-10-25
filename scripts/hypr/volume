@@ -5,3 +5,5 @@ case "$1" in
 	"--decrease") pactl -- set-sink-volume 0 -2% ;;
 	"--mute") pactl -- set-sink-mute 0 toggle ;;
 esac
+
+~/scripts/eww/volume
