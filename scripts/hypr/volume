@@ -1,9 +1,15 @@
 #!/bin/bash
 
 case "$1" in
-	"--increase") pactl -- set-sink-volume 0 +2% ;;
-	"--decrease") pactl -- set-sink-volume 0 -2% ;;
+	"--increase")
+		if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -ge 100 ]; then
+			pactl -- set-sink-volume 0 +2%
+		fi ;;
+		
+	"--decrease")
+		if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -le 0 ]; then
+			pactl -- set-sink-volume 0 -2%
+		fi ;;
+		
 	"--mute") pactl -- set-sink-mute 0 toggle ;;
 esac
-
-~/scripts/eww/volume

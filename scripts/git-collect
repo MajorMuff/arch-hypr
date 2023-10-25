@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cp ~/.config/hypr/* ~/github/dotfiles/hypr/
-cp ~/.config/waybar/* ~/github/dotfiles/waybar/
+cp -r ~/.config/hypr ~/github/dotfiles/
+cp -r ~/.config/waybar ~/github/dotfiles/
 cp ~/.config/wofi/style.css ~/github/dotfiles/wofi/
 cp ~/.config/dunst/dunstrc ~/github/dotfiles/
-cp ~/.config/eww/* ~/github/dotfiles/eww/
+cp -r ~/.config/eww ~/github/dotfiles/
 
 cp -r ~/scripts ~/github/

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 titleStr=$(hyprctl activewindow | grep "title")
-printf '%s' "${titleStr#* }"
+printf '%s' "${titleStr#* }" | sed 's/\(.\{80\}\).*/\1.../'

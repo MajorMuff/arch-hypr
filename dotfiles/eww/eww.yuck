@@ -6,6 +6,8 @@
 (defpoll IPADDR :interval "10m" `ip addr show enp34s0 | grep "inet" | xargs | cut -d " " -f 2 | cut -d "/" -f 1`)
 (defpoll MEMORY :interval "2s" `~/scripts/eww/memory`)
 (defpoll CPU :interval "2s" `~/scripts/eww/cpu`)
+(defpoll VOLUME :interval "0.1s" "~/scripts/eww/volume")
+
 (deflisten workspace0 `~/scripts/eww/workspace`)
 
 (defwidget separator-right []
@@ -39,6 +41,15 @@
 	)
 )
 
+(defwidget volume []
+	(box
+		:class "volume"
+		:space-evenly false
+
+		(label :class "highlight" :text "  ")
+		(label :text VOLUME)
+	)
+)
 (defwidget cpu []
 	(box
 		:class "cpu"
@@ -110,6 +121,8 @@
 		:space-evenly "false"
 		:spacing 24
 
+		(volume)
+		(separator-right)
 		(cpu)
 		(separator-right)
 		(memory)
