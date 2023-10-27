@@ -4,7 +4,7 @@
 (defpoll HOSTNAME :interval "10m" `echo $HOSTNAME`)
 (defpoll ACTIVEWINDOW :interval "0.1s" `~/scripts/eww/active-window`)
 (defpoll IPADDR :interval "10m" `ip addr show enp34s0 | grep "inet" | xargs | cut -d " " -f 2 | cut -d "/" -f 1`)
-(defpoll MEMORY :interval "2s" `~/scripts/eww/memory`)
+(defpoll RAM :interval "2s" `~/scripts/eww/ram`)
 (defpoll CPU :interval "2s" `~/scripts/eww/cpu`)
 (defpoll VOLUME :interval "0.1s" "~/scripts/eww/volume")
 
@@ -60,13 +60,13 @@
 	)
 )
 
-(defwidget memory []
+(defwidget ram []
 	(box
 		:class "memory"
 		:space-evenly false
 
 		(label :class "highlight" :text "  ")
-		(label :text MEMORY)
+		(label :text RAM)
 	)
 )
 
@@ -125,7 +125,7 @@
 		(separator-right)
 		(cpu)
 		(separator-right)
-		(memory)
+		(ram)
 		(separator-right)
 		(ip-addr)
 		(separator-right)
@@ -156,8 +156,8 @@
 	;:reserve (struts :distance "40px" :side "top")
 	:geometry (geometry
 	  	:x "0%"
-		:y "8px"
-		:width "2544"
+		:y "8px" ;toggle_gap
+		:width "2544px" ;toggle_width
 		:height "30px"
 		:anchor "top center"
 	)
@@ -173,8 +173,8 @@
 	;:reserve (struts :distance "40px" :side "top")
 	:geometry (geometry
 	  	:x "0%"
-		:y "8px"
-		:width "2544"
+		:y "8px" ;toggle_gap
+		:width "2544px" ;toggle_width
 		:height "30px"
 		:anchor "top center"
 	)

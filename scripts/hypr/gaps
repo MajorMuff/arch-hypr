@@ -1,0 +1,18 @@
+#!/bin/bash
+
+toggle_gaps () {
+	currentGap=$(grep 'toggle_gap' < ~/dotfiles/eww/eww.yuck | xargs | cut -d ' ' -f 2)
+	if [ "$currentGap" = "8px" ]; then
+		sed -i 's/8px" ;toggle_gap/0px" ;toggle_gap/g' ~/dotfiles/eww/eww.yuck
+		sed -i 's/2544px" ;toggle_width/2560px" ;toggle_width/g' ~/dotfiles/eww/eww.yuck
+		sed -i 's/gaps_in = 4/gaps_in = 0/g' ~/dotfiles/hypr/hyprland.conf
+		sed -i 's/gaps_out = 8/gaps_out = 0/g' ~/dotfiles/hypr/hyprland.conf
+	else
+		sed -i 's/0px" ;toggle_gap/8px" ;toggle_gap/g' ~/dotfiles/eww/eww.yuck
+		sed -i 's/2560px" ;toggle_width/2544px" ;toggle_width/g' ~/dotfiles/eww/eww.yuck
+		sed -i 's/gaps_in = 0/gaps_in = 4/g' ~/dotfiles/hypr/hyprland.conf
+		sed -i 's/gaps_out = 0/gaps_out = 8/g' ~/dotfiles/hypr/hyprland.conf
+	fi
+}
+
+toggle_gaps
