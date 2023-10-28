@@ -1,7 +1,6 @@
 #!/bin/bash
 
 update_workspaces () {
-	# wsList=("$(hyprctl workspaces -j | grep 'id' | cut -c11 | xargs)")
 	wsActive=$(hyprctl activeworkspace | head -1 | cut -d ' ' -f 3)
 	wsListRaw=("$(hyprctl workspaces -j | grep 'id.: [0-9],$' | cut -c11 | xargs)")
 	IFS=$' ' wsList=($(sort <<<"${wsListRaw[*]}"))

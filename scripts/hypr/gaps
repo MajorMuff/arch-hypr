@@ -1,18 +1,23 @@
 #!/bin/bash
 
 toggle_gaps () {
-	currentGap=$(grep 'toggle_gap' < ~/dotfiles/eww/eww.yuck | xargs | cut -d ' ' -f 2)
-	if [ "$currentGap" = "8px" ]; then
-		sed -i 's/8px" ;toggle_gap/0px" ;toggle_gap/g' ~/dotfiles/eww/eww.yuck
-		sed -i 's/2544px" ;toggle_width/2560px" ;toggle_width/g' ~/dotfiles/eww/eww.yuck
-		sed -i 's/gaps_in = 4/gaps_in = 0/g' ~/dotfiles/hypr/hyprland.conf
-		sed -i 's/gaps_out = 8/gaps_out = 0/g' ~/dotfiles/hypr/hyprland.conf
+	currentGap=$(grep 'margin-top' < ~/dotfiles/waybar/config | xargs | cut -d ' ' -f 2 | cut -d ',' -f 1)
+	if [ "$currentGap" = "8" ]; then
+		sed -i 's/width": 2544/width": 2560/' ~/dotfiles/waybar/config
+		sed -i 's/margin-top": 8/margin-top": 0/' ~/dotfiles/waybar/config
+		sed -i 's/spacing": 4/spacing": 0/' ~/dotfiles/waybar/config
+		hyprctl keyword general:gaps_out 0
+		hyprctl keyword general:gaps_in 0
 	else
-		sed -i 's/0px" ;toggle_gap/8px" ;toggle_gap/g' ~/dotfiles/eww/eww.yuck
-		sed -i 's/2560px" ;toggle_width/2544px" ;toggle_width/g' ~/dotfiles/eww/eww.yuck
-		sed -i 's/gaps_in = 0/gaps_in = 4/g' ~/dotfiles/hypr/hyprland.conf
-		sed -i 's/gaps_out = 0/gaps_out = 8/g' ~/dotfiles/hypr/hyprland.conf
+		sed -i 's/width": 2560/width": 2544/' ~/dotfiles/waybar/config
+		sed -i 's/margin-top": 0/margin-top": 8/' ~/dotfiles/waybar/config
+		sed -i 's/spacing": 0/spacing": 4/' ~/dotfiles/waybar/config
+		hyprctl keyword general:gaps_out 8px
+		hyprctl keyword general:gaps_in 4px
 	fi
+
+	killall waybar &>/dev/null
+	nohup waybar </dev/null >/dev/null 2>&1 &
 }
 
 toggle_gaps

@@ -17,6 +17,7 @@
     // ],
 
     "modules-right": [
+    	"tray",
 		"custom/separator-left",
     	"pulseaudio",
     	"custom/separator-left",
@@ -28,8 +29,7 @@
     	"custom/separator-left",
     	"custom/newclock",
     	"custom/separator-left",
-    	"custom/user",
-    	"tray"
+    	"custom/user"
     ],
 
     "hyprland/workspaces": {
