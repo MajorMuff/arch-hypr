@@ -1,3 +1,6 @@
 #!/bin/bash
 
-free | awk '/^Mem/ { printf("<span color=\"#4AB8BC\"></span> %02d%%", $3/$2 * 100.0) }'
+c=($(grep '^cMainGradient:' ~/dotfiles/main.conf | cut -d: -f2 | xargs))
+
+printf "<span color=\"#${c[3]}\">  "
+free | awk '/^Mem/ { printf("%02d%%</span>", $3/$2 * 100.0) }'

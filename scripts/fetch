@@ -1,0 +1,41 @@
+#!/bin/bash
+
+print_fetch () {
+
+	c0=$(tput sgr0)
+
+	if [ -f ~/dotfiles/main.conf ]; then
+		c=($(grep '^cMainGradientTerm' ~/dotfiles/main.conf | cut -d: -f2 | xargs))
+	else
+		c=(213 177 141 105 69 33)
+	fi
+
+	c1=$(tput setaf "${c[0]}")
+	c2=$(tput setaf "${c[1]}")
+	c3=$(tput setaf "${c[2]}")
+	c4=$(tput setaf "${c[3]}")
+	c5=$(tput setaf "${c[4]}")
+	c6=$(tput setaf "${c[5]}")
+
+	distro=$(grep '^NAME' /etc/os-release | cut -d '"' -f 2)
+	ram=$(free -m | grep 'Mem' | xargs | cut -d ' ' -f 3 | rev | sed 's/.../&./g;s/\.$//' | rev)
+
+	printf "\n${c3}"
+	printf "   ___      ___ \n"
+	printf "${c1}  |\"  \    /\"  | ⊏\n"
+	printf "${c2}   \   \  //   | ⊓\n"
+	printf "${c3}   /\\   \/.    | ⊐\n"
+	printf "${c4}  |: \.        | ⊔\n"
+	printf "${c5}  |.  \    /:  | ⊏\n"
+	printf "${c6}  |___|\__/|___| ⊓\n"
+	printf "${c0}\n"
+	printf "   ${c1} user       %s${c0}\n" "$USER"
+	printf "   ${c2} host       %s${c0}\n" "$HOSTNAME"
+	printf "   ${c3} distro     %s${c0}\n" "$distro"
+	printf "   ${c4} uptime     %s${c0}\n" "$(uptime | xargs | cut -d ' ' -f 1)"
+	printf "   ${c5} ram        %s${c0}\n" "${ram}MiB"
+	printf "   ${c6} shell      %s${c0}\n" "$SHELL"
+	printf "${c0}\n"
+}
+
+print_fetch

@@ -104,7 +104,8 @@ button:hover {
 	background-image: url('/home/coen/.config/waybar/separator-right.png');
 }
 #custom-newclock {
-	min-width: 160px;
+	min-width: 180px;
+	margin-right: 12px;
 }
 
 #window,
@@ -170,6 +171,7 @@ label:focus {
 
 #memory {
     background: transparent;
+    color: #5673BE;
 }
 
 #disk {
@@ -296,4 +298,7 @@ label:focus {
 
 #scratchpad.empty {
 	background-color: transparent;
+}
+#tray {
+	color: #4AB8BC;
 }

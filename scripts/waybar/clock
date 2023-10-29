@@ -1,3 +1,5 @@
 #!/bin/bash
 
-printf "%s <span color=\"#666666\">%s</span>" $(date '+%H:%M') $(date '+%Y-%m-%d')
+c=($(grep '^cMainGradient:' ~/dotfiles/main.conf | cut -d: -f2 | xargs))
+
+printf "<span color=\"#${c[4]}\"> %s</span> <span color=\"#666666\">%s</span>" $(date '+%H:%M') $(date '+%Y-%m-%d')

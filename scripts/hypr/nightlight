@@ -1,0 +1,13 @@
+#!/bin/bash
+
+toggle_nightlight () {
+
+	if pidof gammastep; then
+		killall gammastep
+		exit 0
+	else
+		gammastep -l 51.720071:5.3071800 &
+	fi
+}
+
+toggle_nightlight

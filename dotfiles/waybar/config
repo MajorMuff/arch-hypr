@@ -2,9 +2,9 @@
     "layer": "top",
     "position": "top",
     "height": 29,
-    "width": 2544,
-    "spacing": 4,
-    "margin-top": 8,
+    "width": 2560,
+    "spacing": 0,
+    "margin-top": 0,
 
     "modules-left": [
     	"hyprland/workspaces",
@@ -28,8 +28,6 @@
     	"custom/mem",
     	"custom/separator-left",
     	"custom/newclock",
-    	"custom/separator-left",
-    	"custom/user"
     ],
 
     "hyprland/workspaces": {
@@ -205,7 +203,7 @@
     "network": {
         // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "{essid} ({signalStrength}%) ",
-        "format-ethernet": "<span color=\"#4AB8BC\"></span> {ipaddr}",
+        "format-ethernet": "<span color=\"#A97DC5\"> {ipaddr}</span>",
         "tooltip-format": "  {ifname} via {gwaddr}",
         "format-linked": "  {ifname} (No IP)",
         "format-disconnected": "⚠  Disconnected",
@@ -214,7 +212,7 @@
 
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
-        "format": "<span color=\"#4AB8BC\">{icon}</span> {volume}%",
+        "format": "<span color=\"#C07BC4\">{icon} {volume}%</span>",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
         "format-muted": "",
