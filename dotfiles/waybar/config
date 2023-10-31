@@ -1,10 +1,10 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 29,
     "width": 2560,
     "spacing": 0,
-    "margin-top": 0,
+    "margin-top": 6,
+    "margin-bottom": 6, //gap
 
     "modules-left": [
     	"hyprland/workspaces",
@@ -12,39 +12,37 @@
     	"hyprland/window"
     ],
 
-    // "modules-center": [
-    	// "hyprland/window"
-    // ],
+     //"modules-center": [
+    	//"custom/clock"
+     //],
 
     "modules-right": [
     	"tray",
-		"custom/separator-left",
     	"pulseaudio",
-    	"custom/separator-left",
     	"network",
-    	"custom/separator-left",
     	"custom/cpu",
-    	"custom/separator-left",
     	"custom/mem",
-    	"custom/separator-left",
-    	"custom/newclock",
+    	"custom/clock"
     ],
 
     "hyprland/workspaces": {
     	"persistent_workspaces": {
-    		"1": ["DP-1"],
-    		"2": ["DP-2"]
+    		"1": ["DP-1","DP-2"],
+    		"2": ["DP-1","DP-2"],
+    		"3": ["DP-1","DP-2"],
+    		"4": ["DP-1","DP-2"],
+    		"5": ["DP-1","DP-2"],
     	},
         "disable-scroll": true,
-        "all-outputs": true,
+        "all-outputs": false,
         "warp-on-scroll": false,
-        "format": "{name}",
+        "format": "{icon}",
         "format-icons": {
-            "1": " ",
-            "2": " ",
-            "3": " ",
-            "4": " ",
-            "5": " ",
+            "1": "  ",
+            "2": "  ",
+            "3": "   ",
+            "4": "  ",
+            "5": "  ",
             "urgent": "",
             "focused": "",
             "default": ""
@@ -65,7 +63,7 @@
 		"on-click": "~/scripts/waybar/powermenu"
 	},
 
-	"custom/newclock": {
+	"custom/clock": {
 		"exec": "~/scripts/waybar/clock",
 		"interval": 1
 	},
@@ -203,7 +201,7 @@
     "network": {
         // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "{essid} ({signalStrength}%) ",
-        "format-ethernet": "<span color=\"#A97DC5\"> {ipaddr}</span>",
+        "format-ethernet": " {ipaddr}",
         "tooltip-format": "  {ifname} via {gwaddr}",
         "format-linked": "  {ifname} (No IP)",
         "format-disconnected": "⚠  Disconnected",
@@ -212,7 +210,7 @@
 
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
-        "format": "<span color=\"#C07BC4\">{icon} {volume}%</span>",
+        "format": "{icon} {volume}%",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
         "format-muted": "",

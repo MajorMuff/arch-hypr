@@ -1,6 +1,5 @@
 #!/bin/bash
 
-c=($(grep '^cMainGradient:' ~/dotfiles/main.conf | cut -d: -f2 | xargs))
 
-printf "<span color=\"#${c[3]}\">  "
-free | awk '/^Mem/ { printf("%02d%%</span>", $3/$2 * 100.0) }'
+printf "  "
+free | awk '/^Mem/ { printf("%02d%%", $3/$2 * 100.0) }'

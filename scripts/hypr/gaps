@@ -1,21 +1,30 @@
 #!/bin/bash
 
 toggle_gaps () {
-	currentGap=$(grep 'margin-top' < ~/dotfiles/waybar/config | xargs | cut -d ' ' -f 2 | cut -d ',' -f 1)
-	if [ "$currentGap" = "8" ]; then
-		sed -i 's/width": 2544/width": 2560/' ~/dotfiles/waybar/config
-		sed -i 's/margin-top": 8/margin-top": 0/' ~/dotfiles/waybar/config
-		sed -i 's/spacing": 4/spacing": 0/' ~/dotfiles/waybar/config
-		hyprctl keyword general:gaps_out 0
-		hyprctl keyword general:gaps_in 0
+
+	defGapIn=3
+	defGapOut=$((defGapIn*2))
+	defBorderRadius=5
+
+	currGap=$(hyprctl getoption general:gaps_out | grep "int" | cut -d' ' -f2)
+
+	if [[ $currGap -eq 0 ]]; then
+		newGapOut=$defGapOut
+		newGapIn=$((defGapOut/2))
+		newBarGap=0
+		newBorderRadius=$defBorderRadius
 	else
-		sed -i 's/width": 2560/width": 2544/' ~/dotfiles/waybar/config
-		sed -i 's/margin-top": 0/margin-top": 8/' ~/dotfiles/waybar/config
-		sed -i 's/spacing": 0/spacing": 4/' ~/dotfiles/waybar/config
-		hyprctl keyword general:gaps_out 8px
-		hyprctl keyword general:gaps_in 4px
+		newGapOut=0
+		newGapIn=0
+		newBarGap=$currGap
+		newBorderRadius=0
 	fi
 
+	hyprctl keyword general:gaps_in $newGapIn &>/dev/null
+	hyprctl keyword general:gaps_out $newGapOut &>/dev/null
+	hyprctl keyword decoration:rounding $newBorderRadius &>/dev/null
+
+	sed -i "s#[0-9], //gap#$newBarGap, //gap#" ~/dotfiles/waybar/config
 	killall waybar &>/dev/null
 	nohup waybar </dev/null >/dev/null 2>&1 &
 }

@@ -1,5 +1,3 @@
 #!/bin/bash
 
-c=($(grep '^cMainGradient:' ~/dotfiles/main.conf | cut -d: -f2 | xargs))
-
-printf "<span color=\"#${c[2]}\"> %02d%%</span>" $(mpstat --dec=0 | tail -1 | awk '{print $NF}' | awk '{print 100-$1}')
+printf " %02d%%" $(mpstat --dec=0 | tail -1 | awk '{print $NF}' | awk '{print 100-$1}')

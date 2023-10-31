@@ -1,41 +1,59 @@
 #!/bin/bash
 
-print_fetch () {
+print_fetch_default () {
 
-	c0=$(tput sgr0)
+	local mainConf=~/dotfiles/main.conf
+	local arrHex i rgb s c r distro uptime ram
 
-	if [ -f ~/dotfiles/main.conf ]; then
-		c=($(grep '^cMainGradientTerm' ~/dotfiles/main.conf | cut -d: -f2 | xargs))
-	else
-		c=(213 177 141 105 69 33)
-	fi
+	read -r -a arrHex <<< "$(grep '^cMainGradient' $mainConf | cut -d: -f2 | xargs)"
 
-	c1=$(tput setaf "${c[0]}")
-	c2=$(tput setaf "${c[1]}")
-	c3=$(tput setaf "${c[2]}")
-	c4=$(tput setaf "${c[3]}")
-	c5=$(tput setaf "${c[4]}")
-	c6=$(tput setaf "${c[5]}")
+	for (( i=0; i<${#arrHex[@]}; i++ )); do
+		rgb=$(hex2rgb "${arrHex[i]}" | sed -e 's/ /;/g')
+		printf -v s "%s%sm" "\x1b[38;2;" "$rgb"
+		c+=("$s")
+	done
+
+	r="\x1b[0m"
+
+	p () {
+
+		if [ $# -eq 0 ]; then
+			printf "\n"
+		else
+			if ! [ -v "${c[0]}" ]; then
+				e=${c[$1]}
+			fi
+			printf "$e%s$r\n" "$2"
+		fi
+	}
 
 	distro=$(grep '^NAME' /etc/os-release | cut -d '"' -f 2)
+	uptime=$(uptime | xargs | cut -d ' ' -f 1)
 	ram=$(free -m | grep 'Mem' | xargs | cut -d ' ' -f 3 | rev | sed 's/.../&./g;s/\.$//' | rev)
 
-	printf "\n${c3}"
-	printf "   ___      ___ \n"
-	printf "${c1}  |\"  \    /\"  | ⊏\n"
-	printf "${c2}   \   \  //   | ⊓\n"
-	printf "${c3}   /\\   \/.    | ⊐\n"
-	printf "${c4}  |: \.        | ⊔\n"
-	printf "${c5}  |.  \    /:  | ⊏\n"
-	printf "${c6}  |___|\__/|___| ⊓\n"
-	printf "${c0}\n"
-	printf "   ${c1} user       %s${c0}\n" "$USER"
-	printf "   ${c2} host       %s${c0}\n" "$HOSTNAME"
-	printf "   ${c3} distro     %s${c0}\n" "$distro"
-	printf "   ${c4} uptime     %s${c0}\n" "$(uptime | xargs | cut -d ' ' -f 1)"
-	printf "   ${c5} ram        %s${c0}\n" "${ram}MiB"
-	printf "   ${c6} shell      %s${c0}\n" "$SHELL"
-	printf "${c0}\n"
+	p
+
+	if ! [[ $* == *-t* ]]; then
+		p 0 "     ___      ___"
+		p 0 "    |\"  \    /\"  | ⊏"
+		p 1 "     \   \  //   | ⊓"
+		p 2 "     /\   \/.    | ⊐"
+		p 3 "    |: \.        | ⊔"
+		p 4 "    |.  \    /:  | ⊏"
+		p 5 "    |___|\__/|___| ⊓"
+		p
+	fi
+	if ! [[ $* == *-l* ]]; then
+		p 0 "    user       $USER"
+		p 1 "    host       $HOSTNAME"
+		p 2 "    distro     $distro"
+		p 3 "    uptime     $uptime"
+		p 4 "    ram        ${ram}MiB"
+		p 5 "    shell      $SHELL"
+		p
+	fi
+
+	p
 }
 
-print_fetch
+print_fetch_default "$@"
