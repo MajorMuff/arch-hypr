@@ -6,12 +6,3 @@ scriptDir=~/scripts
 
 rsync -aLK --delete $dotsDir $gitDir
 rsync -aLK --delete $scriptDir $gitDir
-
-#rsync -a --delete ~/.config/hypr/ ~/github/dotfiles/hypr
-#rsync -a --delete ~/.config/waybar/ ~/github/dotfiles/waybar
-#rsync -a --delete ~/.config/eww/ ~/github/dotfiles/eww
-#cp ~/.config/wofi/style.css ~/github/dotfiles/wofi/
-#cp ~/.config/dunst/dunstrc ~/github/dotfiles/
-#cp ~/dotfiles/main.conf ~/github/dotfiles/
-
-#rsync -a --delete ~/scripts/ ~/github/scripts
