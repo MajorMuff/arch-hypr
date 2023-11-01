@@ -42,6 +42,7 @@
     		"4": ["DP-1","DP-2"],
     		"5": ["DP-1","DP-2"],
     	},
+    	"tooltip": false,
         "disable-scroll": true,
         "all-outputs": false,
         "warp-on-scroll": false,
@@ -74,17 +75,20 @@
 
 	"custom/clock": {
 		"exec": "~/scripts/waybar/clock",
-		"interval": 1
+		"interval": 1,
+		"tooltip": false
 	},
 
 	"custom/cpu": {
 		"exec": "~/scripts/waybar/cpu",
-		"interval": 4
+		"interval": 4,
+		"tooltip": false
 	},
 	
 	"custom/mem": {
 		"exec": "~/scripts/waybar/mem",
-		"interval": 4
+		"interval": 4,
+		"tooltip": false
 	},
 
     "keyboard-state": {
@@ -99,7 +103,8 @@
 
     "hyprland/window": {
     	"max-length": 400,
-    	"separate-outputs": true
+    	"separate-outputs": true,
+    	"tooltip": false
     },
 
     "hyprland/mode": {
@@ -151,7 +156,8 @@
 
     "tray": {
         // "icon-size": 21,
-        "spacing": 10
+        "spacing": 10,
+        "tooltip": false
     },
 
     "clock": {
@@ -170,7 +176,8 @@
 
     "custom/mem": {
     	"exec": "~/scripts/waybar/mem",
-    	"interval": 2
+    	"interval": 2,
+    	"tooltip": false
     },
 
     "temperature": {
@@ -214,7 +221,8 @@
         "tooltip-format": "  {ifname} via {gwaddr}",
         "format-linked": "  {ifname} (No IP)",
         "format-disconnected": "⚠  Disconnected",
-        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+        "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "tooltip": false
     },
 
     "pulseaudio": {
@@ -234,7 +242,8 @@
             "car": "",
             "default": ["", "", ""]
         },
-        "on-click": "pavucontrol"
+        "on-click": "pavucontrol",
+        "tooltip": false
     },
 
     "custom/media": {
