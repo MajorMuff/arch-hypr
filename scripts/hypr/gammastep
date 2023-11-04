@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if pidof gammastep; then
+	killall gammastep 2>&1 &
+	echo "<span color=\"#1e1e1e\"> </span>"
+else
+	gammastep -l 51.720633:5.310972 &
+	echo "<span color=\"#ffadad\"> </span>"
+fi

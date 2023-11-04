@@ -5,7 +5,7 @@ print_fetch_default () {
 	local mainConf=~/dotfiles/main.conf
 	local arrHex i rgb s c r distro uptime ram
 
-	read -r -a arrHex <<< "$(grep '^cMainGradient' $mainConf | cut -d: -f2 | xargs)"
+	read -ra arrHex <<< "$(grep '^cMainGradient' $mainConf | cut -d: -f2 | xargs)"
 
 	for (( i=0; i<${#arrHex[@]}; i++ )); do
 		rgb=$(hex2rgb "${arrHex[i]}" | sed -e 's/ /;/g')
@@ -34,22 +34,22 @@ print_fetch_default () {
 	p
 
 	if ! [[ $* == *-t* ]]; then
-		p 0 "     ___      ___"
-		p 0 "    |\"  \    /\"  | ⊏"
-		p 1 "     \   \  //   | ⊓"
-		p 2 "     /\   \/.    | ⊐"
-		p 3 "    |: \.        | ⊔"
-		p 4 "    |.  \    /:  | ⊏"
-		p 5 "    |___|\__/|___| ⊓"
+		p 0 "    ___      ___"
+		p 0 "   |\"  \    /\"  | ⊏"
+		p 1 "    \   \  //   | ⊓"
+		p 2 "    /\   \/.    | ⊐"
+		p 3 "   |: \.        | ⊔"
+		p 4 "   |.  \    /:  | ⊏"
+		p 5 "   |___|\__/|___| ⊓"
 		p
 	fi
 	if ! [[ $* == *-l* ]]; then
-		p 0 "    user       $USER"
-		p 1 "    host       $HOSTNAME"
-		p 2 "    distro     $distro"
-		p 3 "    uptime     $uptime"
-		p 4 "    ram        ${ram}MiB"
-		p 5 "    shell      $SHELL"
+		p 0 "   user       $USER"
+		p 1 "   host       $HOSTNAME"
+		p 2 "   distro     $distro"
+		p 3 "   uptime     $uptime"
+		p 4 "   ram        ${ram}MiB"
+		p 5 "   shell      $SHELL"
 		p
 	fi
 
