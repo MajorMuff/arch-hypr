@@ -29,36 +29,56 @@
 /* *************** */
 
 
-
 /* Left side modules */
 
 	/* Workspaces module */
 		#workspaces button {
 			min-width: 45px;
 			padding: 6px 16px 5px 16px;
-			transition-property: padding;
-			transition-duration: .2s;
+			transition-property: background, padding;
+			transition-duration: .3s;
 			transition-timing-function: ease-out;
+			font-weight: bold;
 		}
 
 		#workspaces button:last-child {
-			border-radius: 0 13px 13px 0;
+			border-radius: 0 4px 4px 0;
 		}
 
-		#workspaces button.active,
-		#workspaces button.active:hover,
-		#workspaces button:hover {
+		#workspaces button.active {
 			padding-right: 34px; padding-left: 34px;
 		}
 
-		#workspaces button:nth-child(1) { background: linear-gradient(to right, shade(@grad1, 0.8), @grad1 4px); }
-		#workspaces button:nth-child(2) { background: linear-gradient(to right, shade(@grad2, 0.7), @grad2 4px); }
-		#workspaces button:nth-child(3) { background: linear-gradient(to right, shade(@grad3, 0.6), @grad3 4px); }
-		#workspaces button:nth-child(4) { background: linear-gradient(to right, shade(@grad4, 0.8), @grad4 4px); }
-		#workspaces button:nth-child(5) { background: linear-gradient(to right, shade(@grad5, 0.8), @grad5 4px); }
-		#workspaces button:nth-child(6) { background: linear-gradient(to right, shade(@grad6, 0.8), @grad6 4px); }
-		#workspaces button:nth-child(7) { background: linear-gradient(to right, shade(@grad7, 0.8), @grad7 4px); }
-		#workspaces button:nth-child(8) { background: linear-gradient(to right, shade(@grad8, 0.8), @grad8 4px); }
+		#workspaces button:nth-child(1) { background: linear-gradient(to right, shade(@grad0, 0.8), @grad0 4px); }
+		#workspaces button:nth-child(2) { background: linear-gradient(to right, shade(@grad1, 0.8), @grad1 4px); }
+		#workspaces button:nth-child(3) { background: linear-gradient(to right, shade(@grad2, 0.8), @grad2 4px); }
+		#workspaces button:nth-child(4) { background: linear-gradient(to right, shade(@grad3, 0.8), @grad3 4px); }
+		#workspaces button:nth-child(5) { background: linear-gradient(to right, shade(@grad4, 0.8), @grad4 4px); }
+		#workspaces button:nth-child(6) { background: linear-gradient(to right, shade(@grad5, 0.8), @grad5 4px); }
+		#workspaces button:nth-child(7) { background: linear-gradient(to right, shade(@grad6, 0.8), @grad6 4px); }
+
+		#workspaces button:nth-child(1).active { background: linear-gradient(to right, shade(@grad0, 0.8), shade(@grad0, 1.1) 4px); }
+		#workspaces button:nth-child(1):hover { background: linear-gradient(to right, shade(@grad0, 0.8), shade(@grad0, 1.2) 4px); }
+
+		#workspaces button:nth-child(2).active { background: linear-gradient(to right, shade(@grad1, 0.8), shade(@grad1, 1.1) 4px); }
+		#workspaces button:nth-child(2):hover { background: linear-gradient(to right, shade(@grad1, 0.8), shade(@grad1, 1.2) 4px); }
+
+		#workspaces button:nth-child(3).active { background: linear-gradient(to right, shade(@grad2, 0.8), shade(@grad2, 1.1) 4px); }
+		#workspaces button:nth-child(3):hover { background: linear-gradient(to right, shade(@grad2, 0.8), shade(@grad2, 1.2) 4px); }
+
+		#workspaces button:nth-child(4).active { background: linear-gradient(to right, shade(@grad3, 0.8), shade(@grad3, 1.1) 4px); }
+		#workspaces button:nth-child(4):hover { background: linear-gradient(to right, shade(@grad3, 0.8), shade(@grad3, 1.2) 4px); }
+
+		#workspaces button:nth-child(5).active { background: linear-gradient(to right, shade(@grad4, 0.8), shade(@grad4, 1.1) 4px); }
+		#workspaces button:nth-child(5):hover { background: linear-gradient(to right, shade(@grad4, 0.8), shade(@grad4, 1.2) 4px); }
+
+		#workspaces button:nth-child(6).active { background: linear-gradient(to right, shade(@grad5, 0.8), shade(@grad5, 1.1) 4px); }
+		#workspaces button:nth-child(6):hover { background: linear-gradient(to right, shade(@grad5, 0.8), shade(@grad5, 1.2) 4px); }
+
+		#workspaces button:nth-child(7).active { background: linear-gradient(to right, shade(@grad6, 0.8), shade(@grad6, 1.1) 4px); }
+		#workspaces button:nth-child(7):hover { background: linear-gradient(to right, shade(@grad6, 0.8), shade(@grad6, 1.2) 4px); }
+
+		
 
 	/* Window module */
 		#window {
@@ -81,17 +101,21 @@
 		padding: 2px 30px 1px 30px;
 	}
 
-	#custom-clock { background: linear-gradient(to left, shade(@grad1,0.8), @grad1 4px); }
-	#custom-mem { background: linear-gradient(to left, shade(@grad2,0.7), @grad2 4px); }
-	#custom-cpu { background: linear-gradient(to left, shade(@grad3,0.6), @grad3 4px); }
-	#network { background: linear-gradient(to left, shade(@grad4,0.8), @grad4 4px); }
-	#pulseaudio { background: linear-gradient(to left, shade(@grad5,0.8), @grad5 4px); border-radius: 13px 0 0 13px; }
+	#custom-clock { background: linear-gradient(to left, shade(@grad0,0.8), @grad0 4px); }
+	#custom-mem { background: linear-gradient(to left, shade(@grad1,0.7), @grad1 4px); }
+	#custom-cpu { background: linear-gradient(to left, shade(@grad2,0.6), @grad2 4px); }
+	#network { background: linear-gradient(to left, shade(@grad3,0.8), @grad3 4px); }
+	#pulseaudio { background: linear-gradient(to left, shade(@grad4,0.8), @grad4 4px); }
+
+	#pulseaudio {
+		border-radius: 4px 0 0 4px;		
+	}
 
 	/* Tray */
 		#tray {
 			padding: 2px 10px 1px 10px;
 			margin-right: 20px;
-			background-color: @grad6;
+			background-color: @grad5;
 			border-radius: 13px;
 		}
 

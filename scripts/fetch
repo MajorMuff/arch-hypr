@@ -3,7 +3,7 @@
 print_fetch_default () {
 
 	local mainConf=~/dotfiles/main.conf
-	local arrHex i rgb s c r distro uptime ram
+	local arrHex i rgb s c r uptime ram
 
 	read -ra arrHex <<< "$(grep '^cMainGradient' $mainConf | cut -d: -f2 | xargs)"
 
@@ -26,9 +26,8 @@ print_fetch_default () {
 			printf "$e%s$r\n" "$2"
 		fi
 	}
-
-	distro=$(grep '^NAME' /etc/os-release | cut -d '"' -f 2)
-	uptime=$(uptime | xargs | cut -d ' ' -f 1)
+	
+	uptime=$(uptime -p | sed 's/up //')
 	ram=$(free -m | grep 'Mem' | xargs | cut -d ' ' -f 3 | rev | sed 's/.../&./g;s/\.$//' | rev)
 
 	p
@@ -44,12 +43,12 @@ print_fetch_default () {
 		p
 	fi
 	if ! [[ $* == *-l* ]]; then
-		p 0 "   user       $USER"
-		p 1 "   host       $HOSTNAME"
-		p 2 "   distro     $distro"
-		p 3 "   uptime     $uptime"
-		p 4 "   ram        ${ram}MiB"
-		p 5 "   shell      $SHELL"
+		p 0 "   user         $USER"
+		p 1 "   host         $HOSTNAME"
+		p 2 "   terminal     $TERM"
+		p 3 "   shell        $SHELL"
+		p 4 "   uptime       $uptime"
+		p 5 "   ram          ${ram}MiB"
 		p
 	fi
 

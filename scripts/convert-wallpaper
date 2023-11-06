@@ -1,0 +1,39 @@
+#!/bin/bash
+
+do_convert () {
+
+	filename=$(basename -- "$1")
+	extension="${filename##*.}"
+	filename="${filename%.*}"
+	
+	tmp="/tmp/tmp_$(date '+%Y%m%d%H%M%S')"
+
+	if [ "$(identify -ping -format '%w' "$1")" -gt 2560 ]; then
+
+		# image is more than 2560px wide, scale down
+		magick "$1" -resize 2560x25000\> "$tmp"
+
+		if [ "$(identify -ping -format '%h' "$tmp")" -lt 1440 ]; then
+
+			# image height is too small now, repeat process the other way around
+			magick "$1" -resize 25000x1440\> "$tmp"
+		fi
+	fi
+
+	newWidth=$(identify -ping -format '%w' "$tmp")
+	newHeight=$(identify -ping -format '%h' "$tmp")
+	
+	if [[ "$newWidth" -gt 2560 ]] || [[ "$newHeight" -gt 1440 ]]; then
+
+		# crop if width or height is too large after resize operation
+		magick "$tmp" -crop 2560x1440+0+0 "${tmp}_1"
+		mv "${tmp}_1" "$tmp"
+	fi
+
+	# convert file to png if necessary
+	[[ "$extension" != "png" ]] && magick "$tmp" "${tmp}.png"
+
+	mv "${tmp}.png" "$HOME/Pictures/wallpapers/${filename}.png"
+}
+
+do_convert "$@"

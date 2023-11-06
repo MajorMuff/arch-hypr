@@ -4,11 +4,6 @@ configFile=~/dotfiles/main.conf
 configMd5=~/dotfiles/.config-md5
 
 check_change () {
-	if [[ ! "$*" == *-f* ]]; then
-		update_styles
-		md5sum "$configFile" | cut -d' ' -f1 > "$configMd5"
-		exit 0
-	fi
 	if [ "$(md5sum $configFile | cut -d' ' -f1)" = "$(cat $configMd5)" ]; then
 		exit 0
 	else
@@ -31,17 +26,6 @@ update_styles () {
 
 	waybarText="$(get-colors -c cMainWaybarText)"
 	printf "@define-color defText #%s;" "$waybarText" >> "$waybarColorsFile"
-	
-
-	# update bashrc
-	bashColorsFile=~/.bash_colors
-	
-	c=$(get-colors -c cMainGradient -i 0 -r | xargs | sed -e 's/ /;/g')
-	printf "printf -v c1 \"\\\x1b[38;2;%sm\n" "$c" > "$bashColorsFile"
-
-	c=$(get-colors -c cMainGradient -i 4 -r | xargs | sed -e 's/ /;/g')
-	printf "printf -v c2 \"\\\x1b[38;2;%sm" "$c" >> "$bashColorsFile"
 }
 
 check_change "$@"
-sleep 60

@@ -11,9 +11,10 @@
     "layer": "top",
     "position": "top",
     "width": 2560,
+    "height": 32,
     "spacing": 0,
-    "margin-top": 6,
-    "margin-bottom": 6, //gap
+    "margin-top": 0,
+    "margin-bottom": 0,
 
     "modules-left": [
     	"hyprland/workspaces",

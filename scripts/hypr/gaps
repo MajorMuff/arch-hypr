@@ -16,7 +16,7 @@ toggle_gaps () {
 	else
 		newGapOut=0
 		newGapIn=0
-		newBarGap=$currGap
+		newBarGap=0
 		newBorderRadius=0
 	fi
 

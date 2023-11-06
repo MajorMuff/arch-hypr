@@ -1,21 +1,13 @@
 #!/bin/bash
 
-wpFolder="/home/coen/Pictures/wallpapers"
-confFile="/home/coen/dotfiles/hypr/hyprpaper.conf"
-wpCurr=$(cat "$confFile" | head -1 | awk -F "/" '{print $NF}')
+wpFolder="$HOME/Pictures/wallpapers"
 
-find_random () {
-	randomWallpaper=$(ls "$wpFolder" | shuf -n 1)
-	if [ "$randomWallpaper" = "$wpCurr" ]; then
-		find_random
-	fi
-}
+randomWallpaper=$(find "$wpFolder" -type f | shuf -n1)
 
-find_random
+filename=$(basename "$randomWallpaper")
 
-printf "preload = %s/%s\n" "$wpFolder" "$randomWallpaper" > "$confFile"
-printf "wallpaper = DP-1,%s/%s\n" "$wpFolder" "$randomWallpaper" >> "$confFile"
-printf "wallpaper = DP-2,%s/%s" "$wpFolder" "$randomWallpaper" >> "$confFile"
+cp "$wpFolder/$filename" "$wpFolder/.current/wallpaper.png"
+cp "$wpFolder/.waybar/$filename" "$wpFolder/.current/waybar.png"
 
 case $1 in
 	"--new")

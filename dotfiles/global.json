@@ -1,0 +1,37 @@
+{
+
+	"waybar": [
+		{
+			"gradient": "2a454b 253e45 21373f 1c3139 172a32 13232c 0e1c26",
+			"text": "dfdfdf",
+			
+			"*": {
+				"margin": 0,
+				"padding": 0,
+				"border": 0,
+				"border_radius": 0,
+				"background_color": "transparent",
+				"box-shadow": "none",
+				"font-family": "FontAwesome, Source Code Pro, Roboto, Helvetica, Arial",
+				"font-size": 14,
+				"color": "1e1e1e"
+				
+			}
+			
+			
+		}
+	],
+
+	"hyprland": [
+		{
+			"wm": {
+				"gaps-outer": 0,
+				"gaps-inner": 0,
+				"opacity_active": 0.9,
+				"opacity_inactive": 0.65,
+				"margin": 0
+			}
+		}
+	]
+
+}
