@@ -1,18 +1,11 @@
 #!/bin/bash
 
 wpFolder="$HOME/Pictures/wallpapers"
-
 randomWallpaper=$(find "$wpFolder" -type f | shuf -n1)
-
 filename=$(basename "$randomWallpaper")
 
 cp "$wpFolder/$filename" "$wpFolder/.current/wallpaper.png"
-cp "$wpFolder/.waybar/$filename" "$wpFolder/.current/waybar.png"
 
-case $1 in
-	"--new")
-		hyprctl hyprpaper unload all
-		killall hyprpaper
-		hyprpaper &
-		;;
-esac
+hyprctl hyprpaper unload all
+killall hyprpaper
+hyprpaper &
