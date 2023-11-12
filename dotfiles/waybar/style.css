@@ -49,11 +49,11 @@
 			padding-right: 34px; padding-left: 34px;
 		}
 		
-		#workspaces button:nth-child(1) { background: linear-gradient(to right, shade(@grad0, 0.8), @grad0 4px); }
+		#workspaces button:nth-child(1) { background: linear-gradient(90deg, shade(@grad0, 0.8), @grad0 4px); }
 		#workspaces button:nth-child(1).active { background: linear-gradient(to right, shade(@grad0, 0.8), shade(@grad0, 1.1) 4px); }
 		#workspaces button:nth-child(1):hover { background: linear-gradient(to right, shade(@grad0, 0.8), shade(@grad0, 1.2) 4px); }
 
-		#workspaces button:nth-child(2) { background: linear-gradient(to right, shade(@grad1, 0.8), @grad1 4px); }
+		#workspaces button:nth-child(2) { background: linear-gradient(90deg, shade(@grad1, 0.8), @grad1 4px); }
 		#workspaces button:nth-child(2).active { background: linear-gradient(to right, shade(@grad1, 0.8), shade(@grad1, 1.1) 4px); }
 		#workspaces button:nth-child(2):hover { background: linear-gradient(to right, shade(@grad1, 0.8), shade(@grad1, 1.2) 4px); }
 
@@ -116,6 +116,11 @@
 			background-color: @grad5;
 			border-radius: 13px;
 		}
+
+	.modules-right *:nth-child(2) {
+		background: #ffffff;
+		min-width: 10px;
+	}
 
 /* *************** */
 

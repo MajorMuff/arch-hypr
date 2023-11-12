@@ -1,3 +1,4 @@
+/*
 @define-color grad0 #2a454b;
 @define-color grad1 #253e45;
 @define-color grad2 #21373f;
@@ -5,4 +6,42 @@
 @define-color grad4 #172a32;
 @define-color grad5 #13232c;
 @define-color grad6 #0e1c26;
-@define-color defText #dfdfdf;
+
+@define-color grad0 #ffadad;
+@define-color grad1 #ffd6a5;
+@define-color grad2 #fdffb6;
+@define-color grad3 #caffbf;
+@define-color grad4 #9bf6ff;
+@define-color grad5 #a0c4ff;
+@define-color grad6 #bdb2ff;
+
+@define-color grad0 #4d194d;
+@define-color grad1 #3e1f47;
+@define-color grad2 #312244;
+@define-color grad3 #272640;
+@define-color grad4 #212f45;
+@define-color grad5 #1b3a4b;
+
+@define-color grad0 #ef476f;
+@define-color grad1 #f78c6b;
+@define-color grad2 #ffd166;
+@define-color grad3 #06d6a0;
+@define-color grad4 #118ab2;
+@define-color grad5 #073b4c;
+
+@define-color grad0 #196087;
+@define-color grad1 #147292;
+@define-color grad2 #0f849d;
+@define-color grad3 #0a95a9;
+@define-color grad4 #05a7b4;
+@define-color grad5 #00b9bf;
+*/
+
+@define-color grad0 #6e78ff;
+@define-color grad1 #6c8dfa;
+@define-color grad2 #6aa1f4;
+@define-color grad3 #68b6ef;
+@define-color grad4 #65cbe9;
+@define-color grad5 #63dfe4;
+
+@define-color defText #333333;

@@ -30,25 +30,25 @@ window:
   # must be non-zero for this to take effect. The number of columns must be at
   # least `2`, while using a value of `0` for columns and lines will fall back
   # to the window manager's recommended size
-  #dimensions:
-  #  columns: 0
-  #  lines: 0
+  dimensions:
+    columns: 69
+    lines: 2
 
   # Window position (changes require restart)
   #
   # Specified in number of pixels.
   # If the position is not set, the window manager will handle the placement.
-  #position:
-  #  x: 0
-  #  y: 0
+  position:
+    x: 500
+    y: 0
 
   # Window padding (changes require restart)
   #
   # Blank space added around the window in pixels. This padding is scaled
   # by DPI and the specified value is always added at both opposing sides.
   padding:
-    x: 20
-    y: 10
+    x: 16
+    y: 16
 
   # Spread additional padding evenly around the terminal content.
   #dynamic_padding: false
@@ -79,18 +79,18 @@ window:
   #
   # Values for `startup_mode` (macOS only):
   #   - SimpleFullscreen
-  #startup_mode: Windowed
+  startup_mode: Windowed
 
   # Window title
-  title: Alacritty
+  title: floater
 
   # Allow terminal applications to change Alacritty's window title.
   dynamic_title: true
 
   # Window class (Linux/BSD only):
-  #class:
+  class:
     # Application instance name
-    #instance: Alacritty
+    instance: floater
     # General application class
     #general: Alacritty
 
@@ -116,7 +116,7 @@ window:
 scrolling:
   # Maximum number of lines in the scrollback buffer.
   # Specifying '0' will disable scrolling.
-  history: 10000
+  history: 0
 
   # Scrolling distance multiplier.
   #multiplier: 3
@@ -220,7 +220,7 @@ draw_bold_text_with_bright_colors: false
   # affected cell, or hexadecimal colors like #ff00ff.
   #cursor:
   #  text: CellBackground
-  #  cursor: CellForeground
+  #  cursor: CellBackground
 
   # Vi mode cursor colors
   #
