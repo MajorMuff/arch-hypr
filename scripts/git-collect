@@ -1,8 +1,8 @@
 #!/bin/bash
 
-gitDir=~/github
-dotsDir=~/dotfiles
-scriptDir=~/scripts
+gitDir=$HOME/github
+dotsDir=$HOME/dotfiles
+scriptDir=$HOME/scripts
 
 rsync -aLK --delete $dotsDir $gitDir
 rsync -aLK --delete $scriptDir $gitDir

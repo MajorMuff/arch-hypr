@@ -1,5 +1,48 @@
 #!/bin/bash
+#   ___      ___
+#  |"  \    /"  | ⊏
+#   \   \  //   | ⊓
+#   /\   \/.    | ⊐
+#  |: \.        | ⊔
+#  |.  \    /:  | ⊏
+#  |___|\__/|___| ⊓
+#
+#  Usage: mainctl [OPTION] (ARGS)
+#    --gamemode            toggles opacity and blur for all active windows
+#    --gammastep           toggles gammastep on/off
+#    --swayidle            starts swayidle process to turn off displays after inactivity
+#    --wallpaper           chooses new random wallpaper and restarts hyprpaper
+#    --volume [ARG]        allows volume control
+#      -i                  increase volume by 2 percent
+#      -d                  decrease volume by 2 percent
+#      -m                  mute volume
+#    --screenshot [ARG]    creates screenshot and copies it to the clipboard
+#      -f                  fullscreen screenshot
+#      -s                  selection screenshot
+#    --help                show this information and exit
 
+
+
+usage () {
+	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
+	printf "    --gamemode            toggles opacity and blur for all active windows\n"
+	printf "    --gammastep           toggles gammastep on/off\n"
+	printf "    --swayidle            starts swayidle process to turn off displays after inactivity\n"
+	printf "    --wallpaper           chooses new random wallpaper and restarts hyprpaper\n"
+	printf "    --volume [ARG]        allows volume control\n"
+	printf "      -i                  increase volume by 2 percent\n"
+	printf "      -d                  decrease volume by 2 percent\n"
+	printf "      -m                  mute volume\n"
+	printf "    --screenshot [ARG]    creates screenshot and copies it to the clipboard\n"
+	printf "      -f                  fullscreen screenshot\n"
+	printf "      -s                  selection screenshot\n"
+	printf "\n"
+	printf "    --help                show this information and exit\n"
+	printf "\n"
+}
+
+
+# gamemode toggles opacity and blur for all windows, freeing up resources for games and other applications
 toggle_gamemode () {
 	[[ -f /tmp/gamemode_proc ]] && exit 1
 
@@ -33,6 +76,7 @@ toggle_gamemode () {
 
 
 
+# toggles gammastep on/off
 toggle_gammastep () {
 	[[ -f /tmp/gammastep_proc ]] && exit 1
 
@@ -52,6 +96,7 @@ toggle_gammastep () {
 
 
 
+# start swayidle to turn off displays on idle
 start_swayidle () {
 	if pidof swayidle >/dev/null; then exit 1; fi
 
@@ -62,6 +107,24 @@ start_swayidle () {
 
 
 
+# switches to new random wallpaper from Pictures/wallpapers folder
+wallpaper () {
+	local wpFolder randomWallpaper filename
+
+	wpFolder="$HOME/Pictures/wallpapers"
+	randomWallpaper=$(find "$wpFolder" -type f | shuf -n1)
+	filename=$(basename "$randomWallpaper")
+
+	cp "$wpFolder/$filename" "$wpFolder/.current/wallpaper.png"
+
+	hyprctl hyprpaper unload all &&
+	killall hyprpaper &&
+	hyprpaper &
+}
+
+
+
+# increase (-i), decrease (-d), or mute (-m) volume using pactl
 volume () {
 	case "$1" in
 		"-i")
@@ -80,22 +143,7 @@ volume () {
 
 
 
-wallpaper () {
-	local wpFolder randomWallpaper filename
-
-	wpFolder="$HOME/Pictures/wallpapers"
-	randomWallpaper=$(find "$wpFolder" -type f | shuf -n1)
-	filename=$(basename "$randomWallpaper")
-
-	cp "$wpFolder/$filename" "$wpFolder/.current/wallpaper.png"
-
-	hyprctl hyprpaper unload all &&
-	killall hyprpaper &&
-	hyprpaper &
-}
-
-
-
+# uses grim to create screenshot, either from a selection (-s) or fullscreen (-f), and copies it to the clipboard
 screenshot () {
 	local savedir filename
 
@@ -124,7 +172,6 @@ screenshot () {
 		fi
 	}
 
-
 	case "$1" in
 		"-s") shot_selection ;;
 		"-f") shot_fullscreen ;;
@@ -140,4 +187,5 @@ case "$1" in
 	"--volume") volume "$2" ;;
 	"--wallpaper") wallpaper ;;
 	"--screenshot") screenshot "$2" ;;
+	"--help"|*) usage ;;
 esac
