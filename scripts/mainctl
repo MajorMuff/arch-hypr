@@ -64,17 +64,17 @@ start_swayidle () {
 
 volume () {
 	case "$1" in
-		"--increase")
+		"-i")
 			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -ge 100 ]; then
 				pactl -- set-sink-volume 0 +2%
 			fi ;;
 			
-		"--decrease")
+		"-d")
 			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -le 0 ]; then
 				pactl -- set-sink-volume 0 -2%
 			fi ;;
 			
-		"--mute") pactl -- set-sink-mute 0 toggle ;;
+		"-m") pactl -- set-sink-mute 0 toggle ;;
 	esac
 }
 
@@ -96,10 +96,48 @@ wallpaper () {
 
 
 
+screenshot () {
+	local savedir filename
+
+	savedir=/tmp
+	filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
+	 
+	shot_selection () {
+		if grim -g "$(slurp)" "$filename"; then
+			wl-copy < "$filename"
+			notify-send "Screenshot" "Copied to clipboard."
+			exit 0
+		else
+			notify-send 'Error saving file'
+			exit 1
+		fi
+	}
+			
+	shot_fullscreen () { 
+		if grim "$filename"; then
+			wl-copy < "$filename"
+			notify-send "Screenshot" "Copied to clipboard."
+			exit 0
+		else
+			notify-send 'Error saving file'
+			exit 1
+		fi
+	}
+
+
+	case "$1" in
+		"-s") shot_selection ;;
+		"-f") shot_fullscreen ;;
+	esac
+}
+
+
+
 case "$1" in
 	"--gamemode") toggle_gamemode ;;
 	"--gammastep") toggle_gammastep ;;
 	"--swayidle") start_swayidle ;;
 	"--volume") volume "$2" ;;
 	"--wallpaper") wallpaper ;;
+	"--screenshot") screenshot "$2" ;;
 esac
