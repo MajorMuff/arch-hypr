@@ -1,9 +1,0 @@
-#!/bin/bash
-
-reload_bar () {
-
-	killall waybar &>/dev/null
-	nohup waybar </dev/null >/dev/null 2>&1 &
-}
-
-reload_bar

@@ -23,7 +23,7 @@
 
 
 
-usage () {
+function usage {
 	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
 	printf "    --gamemode            toggles opacity and blur for all active windows\n"
 	printf "    --gammastep           toggles gammastep on/off\n"
@@ -43,7 +43,7 @@ usage () {
 
 
 # gamemode toggles opacity and blur for all windows, freeing up resources for games and other applications
-toggle_gamemode () {
+function toggle_gamemode {
 	[[ -f /tmp/gamemode_proc ]] && exit 1
 
 	local mainConfigFile toggleFile gamemodeState
@@ -77,7 +77,7 @@ toggle_gamemode () {
 
 
 # toggles gammastep on/off
-toggle_gammastep () {
+function toggle_gammastep {
 	[[ -f /tmp/gammastep_proc ]] && exit 1
 
 	touch /tmp/gammastep_proc
@@ -97,7 +97,7 @@ toggle_gammastep () {
 
 
 # start swayidle to turn off displays on idle
-start_swayidle () {
+function start_swayidle {
 	if pidof swayidle >/dev/null; then exit 1; fi
 
 	swayidle \
@@ -108,7 +108,7 @@ start_swayidle () {
 
 
 # switches to new random wallpaper from Pictures/wallpapers folder
-wallpaper () {
+function wallpaper {
 	local wpFolder randomWallpaper filename
 
 	wpFolder="$HOME/Pictures/wallpapers"
@@ -125,7 +125,7 @@ wallpaper () {
 
 
 # increase (-i), decrease (-d), or mute (-m) volume using pactl
-volume () {
+function volume {
 	case "$1" in
 		"-i")
 			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -ge 100 ]; then
@@ -144,13 +144,13 @@ volume () {
 
 
 # uses grim to create screenshot, either from a selection (-s) or fullscreen (-f), and copies it to the clipboard
-screenshot () {
+function screenshot {
 	local savedir filename
 
 	savedir=/tmp
 	filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
 	 
-	shot_selection () {
+	function shot_selection {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
 			notify-send "Screenshot" "Copied to clipboard."
@@ -161,7 +161,7 @@ screenshot () {
 		fi
 	}
 			
-	shot_fullscreen () { 
+	function shot_fullscreen { 
 		if grim "$filename"; then
 			wl-copy < "$filename"
 			notify-send "Screenshot" "Copied to clipboard."
@@ -184,8 +184,8 @@ case "$1" in
 	"--gamemode") toggle_gamemode ;;
 	"--gammastep") toggle_gammastep ;;
 	"--swayidle") start_swayidle ;;
-	"--volume") volume "$2" ;;
 	"--wallpaper") wallpaper ;;
+	"--volume") volume "$2" ;;
 	"--screenshot") screenshot "$2" ;;
 	"--help"|*) usage ;;
 esac
