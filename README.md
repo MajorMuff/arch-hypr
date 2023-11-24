@@ -1,5 +1,5 @@
 ## hyprland / hyprpaper
-[dots](dotfiles/hypr) - [scripts](scripts/hypr)
+[dots](dotfiles/hypr)
 
 -----------------
 
