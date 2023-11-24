@@ -1,7 +1,0 @@
-#!/bin/bash
-
-
-
-if ! eww close dimscreen &>/dev/null; then
-	eww open dimscreen
-fi

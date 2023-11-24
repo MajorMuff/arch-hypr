@@ -1,0 +1,105 @@
+#!/bin/bash
+
+toggle_gamemode () {
+	[[ -f /tmp/gamemode_proc ]] && exit 1
+
+	local mainConfigFile toggleFile gamemodeState
+
+	mainConfigFile="$HOME/dotfiles/main.conf"
+	toggleFile="$HOME/dotfiles/toggles.conf"
+	gamemodeState=$(grep 'gamemode' "$toggleFile" | cut -d= -f2 | xargs)
+
+	touch /tmp/gamemode_proc
+
+	if [ "$gamemodeState" = false ]; then
+		hyprctl keyword decoration:active_opacity 1 &&
+		hyprctl keyword decoration:inactive_opacity 1 &&
+		hyprctl keyword decoration:blur:enabled false
+		sed -i "s/gamemode.*/gamemode = true/" "$toggleFile"
+		notify-send "Gamemode" "Gamemode enabled."
+	else
+		defActiveOpacity=$(grep 'defActiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
+		defInactiveOpacity=$(grep 'defInactiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
+		hyprctl keyword decoration:active_opacity "$defActiveOpacity" &&
+		hyprctl keyword decoration:inactive_opacity "$defInactiveOpacity" &&
+		hyprctl keyword decoration:blur:enabled true
+		sed -i "s/gamemode.*/gamemode = false/" "$toggleFile"
+		notify-send "Gamemode" "Gamemode disabled."
+	fi
+
+	sleep 5s
+	rm /tmp/gamemode_proc
+}
+
+
+
+toggle_gammastep () {
+	[[ -f /tmp/gammastep_proc ]] && exit 1
+
+	touch /tmp/gammastep_proc
+
+	if pidof gammastep >/dev/null; then
+		killall gammastep
+		notify-send "Gammastep" "Gammastep disabled."
+	else
+		"$HOME"/scripts/launch gammastep -l 51.720633:5.310972
+		notify-send "Gammastep" "Gammastep enabled."
+	fi
+
+	sleep 5
+	rm /tmp/gammastep_proc
+}
+
+
+
+start_swayidle () {
+	if pidof swayidle >/dev/null; then exit 1; fi
+
+	swayidle \
+		timeout 360 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
+		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2'
+}
+
+
+
+volume () {
+	case "$1" in
+		"--increase")
+			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -ge 100 ]; then
+				pactl -- set-sink-volume 0 +2%
+			fi ;;
+			
+		"--decrease")
+			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -le 0 ]; then
+				pactl -- set-sink-volume 0 -2%
+			fi ;;
+			
+		"--mute") pactl -- set-sink-mute 0 toggle ;;
+	esac
+}
+
+
+
+wallpaper () {
+	local wpFolder randomWallpaper filename
+
+	wpFolder="$HOME/Pictures/wallpapers"
+	randomWallpaper=$(find "$wpFolder" -type f | shuf -n1)
+	filename=$(basename "$randomWallpaper")
+
+	cp "$wpFolder/$filename" "$wpFolder/.current/wallpaper.png"
+
+	hyprctl hyprpaper unload all &&
+	killall hyprpaper &&
+	hyprpaper &
+}
+
+
+
+case "$1" in
+	"--gamemode") toggle_gamemode ;;
+	"--gammastep") toggle_gammastep ;;
+	"--swayidle") start_swayidle ;;
+	"--volume") volume "$2" ;;
+	"--wallpaper") wallpaper ;;
+esac

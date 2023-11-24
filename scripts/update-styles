@@ -15,6 +15,9 @@ check_change () {
 update_styles () {
 
 	# update waybar styles
+
+	local waybarColorsFile arrWaybarGradient waybarText
+
 	waybarColorsFile=~/dotfiles/waybar/colors.css
 	
 	read -r -a arrWaybarGradient <<< "$(get-colors -c cMainWaybarGradient)"

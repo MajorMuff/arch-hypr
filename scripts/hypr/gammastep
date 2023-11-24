@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if pidof gammastep; then
-	killall gammastep 2>&1 &
-else
-	gammastep -l 51.720633:5.310972 &
-fi
