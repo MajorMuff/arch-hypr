@@ -19,6 +19,7 @@
 #    --screenshot [ARG]    creates screenshot and copies it to the clipboard
 #      -f                  fullscreen screenshot
 #      -s                  selection screenshot
+#
 #    --help                show this information and exit
 
 
@@ -42,36 +43,41 @@ function usage {
 }
 
 
-# gamemode toggles opacity and blur for all windows, freeing up resources for games and other applications
-function toggle_gamemode {
-	[[ -f /tmp/gamemode_proc ]] && exit 1
 
-	local mainConfigFile toggleFile gamemodeState
+# gamemode toggles opacity and blur for all windows
+function toggle_gamemode {
+	[[ -f "/tmp/gamemode.proc" ]] && exit 1
+
+	touch "/tmp/gamemode.proc"
 
 	mainConfigFile="$HOME/dotfiles/main.conf"
-	toggleFile="$HOME/dotfiles/toggles.conf"
-	gamemodeState=$(grep 'gamemode' "$toggleFile" | cut -d= -f2 | xargs)
 
-	touch /tmp/gamemode_proc
-
-	if [ "$gamemodeState" = false ]; then
+	function gamemode_enable {
 		hyprctl keyword decoration:active_opacity 1 &&
 		hyprctl keyword decoration:inactive_opacity 1 &&
 		hyprctl keyword decoration:blur:enabled false
-		sed -i "s/gamemode.*/gamemode = true/" "$toggleFile"
+		touch "/tmp/gamemode.toggle"
 		notify-send "Gamemode" "Gamemode enabled."
-	else
+	}
+
+	function gamemode_disable {
 		defActiveOpacity=$(grep 'defActiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
 		defInactiveOpacity=$(grep 'defInactiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
 		hyprctl keyword decoration:active_opacity "$defActiveOpacity" &&
 		hyprctl keyword decoration:inactive_opacity "$defInactiveOpacity" &&
 		hyprctl keyword decoration:blur:enabled true
-		sed -i "s/gamemode.*/gamemode = false/" "$toggleFile"
+		rm "/tmp/gamemode.toggle"
 		notify-send "Gamemode" "Gamemode disabled."
+	}
+
+	if [ -f "/tmp/gamemode.toggle" ]; then
+		gamemode_disable
+	else
+		gamemode_enable
 	fi
 
 	sleep 5s
-	rm /tmp/gamemode_proc
+	rm "/tmp/gamemode.proc"
 }
 
 
