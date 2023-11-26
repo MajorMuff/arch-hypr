@@ -1,6 +1,6 @@
 #!/bin/bash
 
-do_convert () {
+function do_convert {
 
 	filename=$(basename -- "$1")
 	extension="${filename##*.}"
@@ -31,7 +31,11 @@ do_convert () {
 	fi
 
 	# convert file to png if necessary
-	[[ "$extension" != "png" ]] && magick "$tmp" "${tmp}.png"
+	if [ "$extension" != "png" ]; then
+		magick "$tmp" "${tmp}.png"
+	else
+		mv "$tmp" "${tmp}.png"
+	fi
 
 	mv "${tmp}.png" "$HOME/Pictures/wallpapers/${filename}.png"
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-print_fetch_default () {
+function print_fetch_default {
 
 	local mainConf=~/dotfiles/main.conf
 	local arrHex i rgb s c r uptime ram
@@ -48,7 +48,7 @@ print_fetch_default () {
 		p 2 "   terminal     $TERM"
 		p 3 "   shell        $SHELL"
 		p 4 "   uptime       $uptime"
-		p 5 "   ram          ${ram}MiB"
+		p 5 "   ram usage    ${ram}MiB"
 		p
 	fi
 

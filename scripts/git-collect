@@ -4,5 +4,5 @@ gitDir=$HOME/github
 dotsDir=$HOME/dotfiles
 scriptDir=$HOME/scripts
 
-rsync -aLK --delete $dotsDir $gitDir
-rsync -aLK --delete $scriptDir $gitDir
+if ! rsync -aLK --delete "$dotsDir" "$gitDir"; then echo "Failed to sync dotfiles!"; fi
+if ! rsync -aLK --delete "$scriptDir" "$gitDir"; then echo "Failed to sync scripts!"; fi

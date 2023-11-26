@@ -1,28 +1,26 @@
 #!/bin/bash
-#   ___      ___
-#  |"  \    /"  | ⊏
-#   \   \  //   | ⊓
-#   /\   \/.    | ⊐
-#  |: \.        | ⊔
-#  |.  \    /:  | ⊏
-#  |___|\__/|___| ⊓
+#    ___      ___
+#   |"  \    /"  | ⊏
+#    \   \  //   | ⊓
+#    /\   \/.    | ⊐
+#   |: \.        | ⊔
+#   |.  \    /:  | ⊏
+#   |___|\__/|___| ⊓
 #
-#  Usage: mainctl [OPTION] (ARGS)
-#    --gamemode            toggles opacity and blur for all active windows
-#    --gammastep           toggles gammastep on/off
-#    --swayidle            starts swayidle process to turn off displays after inactivity
-#    --wallpaper           chooses new random wallpaper and restarts hyprpaper
-#    --volume [ARG]        allows volume control
-#      -i                  increase volume by 2 percent
-#      -d                  decrease volume by 2 percent
-#      -m                  mute volume
-#    --screenshot [ARG]    creates screenshot and copies it to the clipboard
-#      -f                  fullscreen screenshot
-#      -s                  selection screenshot
+#   Usage: mainctl [OPTION] (ARGS)
+#     --gamemode            toggles opacity and blur for all active windows
+#     --gammastep           toggles gammastep on/off
+#     --swayidle            starts swayidle process to turn off displays after inactivity
+#     --wallpaper           chooses new random wallpaper and restarts hyprpaper
+#     --volume [ARG]        allows volume control
+#       -i                  increase volume by 2 percent
+#       -d                  decrease volume by 2 percent
+#       -m                  mute volume
+#     --screenshot [ARG]    creates screenshot and copies it to the clipboard
+#       -f                  fullscreen screenshot
+#       -s                  selection screenshot
 #
-#    --help                show this information and exit
-
-
+#     --help                show this information and exit
 
 function usage {
 	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
@@ -42,51 +40,57 @@ function usage {
 	printf "\n"
 }
 
+function log_notify {
+	local errTitle errMsg
+	local logfile="/var/log/mainctl.log"
+	case "$1" in
+		"gamemode-proc") errTitle="Gamemode"; errMsg="Failed to create temp file. No rights?" ;;
+		"gammastep-proc") errTitle="Gammastep"; errMsg="Failed to create temp file. No rights?" ;;
+	esac
 
+	printf "$(date '+%Y-%m-%d %H:%M:%S') - %s: %s\n" "$errTitle" "$errMsg" >> "$logfile"
+
+	notify-send "${errTitle}" "${errMsg}"
+
+	exit 1
+}
 
 # gamemode toggles opacity and blur for all windows
 function toggle_gamemode {
-	[[ -f "/tmp/gamemode.proc" ]] && exit 1
+	local procfile="/tmp/gamemode.proc"
+	[ -f "$procfile" ] && exit 1
+	if ! touch "$procfile"; then log_notify "gamemode-proc"; fi
 
-	touch "/tmp/gamemode.proc"
+	local defActiveOpacity defInactiveOpacity
+	local toggleFile="/tmp/gamemode.toggle"
+	local mainConfigFile="$HOME/dotfiles/main.conf"
 
-	mainConfigFile="$HOME/dotfiles/main.conf"
-
-	function gamemode_enable {
-		hyprctl keyword decoration:active_opacity 1 &&
-		hyprctl keyword decoration:inactive_opacity 1 &&
-		hyprctl keyword decoration:blur:enabled false
-		touch "/tmp/gamemode.toggle"
-		notify-send "Gamemode" "Gamemode enabled."
-	}
-
-	function gamemode_disable {
+	if [ -f "$toggleFile" ]; then 
 		defActiveOpacity=$(grep 'defActiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
 		defInactiveOpacity=$(grep 'defInactiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
 		hyprctl keyword decoration:active_opacity "$defActiveOpacity" &&
 		hyprctl keyword decoration:inactive_opacity "$defInactiveOpacity" &&
 		hyprctl keyword decoration:blur:enabled true
-		rm "/tmp/gamemode.toggle"
+		rm "$toggleFile"
 		notify-send "Gamemode" "Gamemode disabled."
-	}
-
-	if [ -f "/tmp/gamemode.toggle" ]; then
-		gamemode_disable
 	else
-		gamemode_enable
+		hyprctl keyword decoration:active_opacity 1 &&
+		hyprctl keyword decoration:inactive_opacity 1 &&
+		hyprctl keyword decoration:blur:enabled false
+		touch "$toggleFile"
+		notify-send "Gamemode" "Gamemode enabled."
 	fi
 
-	sleep 5s
-	rm "/tmp/gamemode.proc"
+	sleep 2
+	rm "$procfile"
 }
-
-
 
 # toggles gammastep on/off
 function toggle_gammastep {
-	[[ -f /tmp/gammastep_proc ]] && exit 1
+	local procfile="/tmp/gammastep.proc"
 
-	touch /tmp/gammastep_proc
+	[[ -f /tmp/gammastep_proc ]] && exit 1
+	if ! touch "$procfile"; then log_notify "gammastep-proc"; fi
 
 	if pidof gammastep >/dev/null; then
 		killall gammastep
@@ -96,11 +100,9 @@ function toggle_gammastep {
 		notify-send "Gammastep" "Gammastep enabled."
 	fi
 
-	sleep 5
-	rm /tmp/gammastep_proc
+	sleep 4
+	rm "$procfile"
 }
-
-
 
 # start swayidle to turn off displays on idle
 function start_swayidle {
@@ -110,8 +112,6 @@ function start_swayidle {
 		timeout 360 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
 		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2'
 }
-
-
 
 # switches to new random wallpaper from Pictures/wallpapers folder
 function wallpaper {
@@ -127,8 +127,6 @@ function wallpaper {
 	killall hyprpaper &&
 	hyprpaper &
 }
-
-
 
 # increase (-i), decrease (-d), or mute (-m) volume using pactl
 function volume {
@@ -146,8 +144,6 @@ function volume {
 		"-m") pactl -- set-sink-mute 0 toggle ;;
 	esac
 }
-
-
 
 # uses grim to create screenshot, either from a selection (-s) or fullscreen (-f), and copies it to the clipboard
 function screenshot {
@@ -183,8 +179,6 @@ function screenshot {
 		"-f") shot_fullscreen ;;
 	esac
 }
-
-
 
 case "$1" in
 	"--gamemode") toggle_gamemode ;;

@@ -13,8 +13,8 @@
     "width": 2560,
     //"height": 32,
     "spacing": 0,
-    "margin-top": 0,
     "margin-bottom": 0,
+    "margin-left": 4,
     "output": ["DP-1","DP-2"],
 
     "modules-left": [
@@ -23,9 +23,8 @@
     	"hyprland/window"
     ],
 
-     //"modules-center": [
-    	//"custom/clock"
-     //],
+     "modules-center": [
+     ],
 
     "modules-right": [
     	"tray",
@@ -54,7 +53,7 @@
             "2": " ",
             "3": "  ",
             "4": "  ",
-            "5": "   ",
+            "5": "  ",
             "6": "  ",
             "urgent": "",
             "focused": "",

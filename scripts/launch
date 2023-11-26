@@ -1,7 +1,5 @@
 #!/bin/bash
 
-launch () {
-	(nohup "$@" > /dev/null 2>&1 &)
-}
+[[ "$#" -lt 1 ]] && exit 1
 
-launch "$@"
+(nohup "$@" > /dev/null 2>&1 &)
