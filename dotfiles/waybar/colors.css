@@ -45,12 +45,12 @@
 @define-color grad_6 #63dfe4;
 */
 
-@define-color grad_1 #0c0c0e;
-@define-color grad_2 #121314;
-@define-color grad_3 #18191a;
-@define-color grad_4 #1e1f20;
-@define-color grad_5 #252627;
-@define-color grad_6 #2b2c2d;
+@define-color grad_1 #121314;
+@define-color grad_2 #18191a;
+@define-color grad_3 #1e1f20;
+@define-color grad_4 #252627;
+@define-color grad_5 #2b2c2d;
+@define-color grad_6 #323132;
 
 @define-color txt_button #888888;
 @define-color txt_button_active #ffffff;

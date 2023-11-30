@@ -32,6 +32,7 @@
     	"network",
     	"custom/cpu",
     	"custom/mem",
+        "custom/weather",
     	"custom/clock"
     ],
 
@@ -92,6 +93,13 @@
 		"interval": 4,
 		"tooltip": false
 	},
+
+    "custom/weather": {
+        "exec": "~/scripts/waybar/weather",
+        "on-click": "~/scripts/waybar/weather --next",
+        "interval": 60,
+        "tooltip": false
+    },
 
     "keyboard-state": {
         "numlock": true,
