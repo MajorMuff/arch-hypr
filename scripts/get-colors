@@ -47,7 +47,7 @@ get_colors () {
 	}
 
 	if ! find_colors; then
-		echo "your coding sucks"
+		echo "your code sucks"
 		exit 1
 	fi
 	

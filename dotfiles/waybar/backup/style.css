@@ -93,4 +93,4 @@
 #custom-mem { background: linear-gradient(166deg, shade(@grad_3, 1.1), shade(@grad_3, 0.9)); }
 #custom-cpu { background: linear-gradient(166deg, shade(@grad_4, 1.1), shade(@grad_4, 0.9)); }
 #network { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
-#pulseaudio { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); margin-right: 0; }
+#pulseaudio { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); }

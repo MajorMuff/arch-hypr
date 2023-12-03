@@ -64,27 +64,41 @@
         "sort-by-number": true
     },
 
+	"custom/separator-left": {
+		"format": " "
+	},
+
+	"custom/separator-right": {
+			"format": " "
+	},
+
+	"custom/user": {
+		"exec": "~/scripts/waybar/user-host",
+		"on-click": "~/scripts/waybar/powermenu"
+	},
+
 	"custom/clock": {
-		"exec": "~/scripts/wbmodule clock",
+		"exec": "~/scripts/waybar/clock",
 		"interval": 1,
 		"tooltip": false,
+        "on-click": "/usr/bin/kitty"
 	},
 
 	"custom/cpu": {
-		"exec": "~/scripts/wbmodule cpu",
+		"exec": "~/scripts/waybar/cpu",
 		"interval": 4,
 		"tooltip": false
 	},
 	
 	"custom/mem": {
-		"exec": "~/scripts/wbmodule memory",
+		"exec": "~/scripts/waybar/mem",
 		"interval": 4,
 		"tooltip": false
 	},
 
     "custom/weather": {
-        "exec": "~/scripts/wbmodule weather",
-        "on-click": "~/scripts/wbmodule weather --next",
+        "exec": "~/scripts/waybar/weather",
+        "on-click": "~/scripts/waybar/weather --next",
         "interval": 60,
         "tooltip": false
     },

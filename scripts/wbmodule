@@ -1,0 +1,67 @@
+#!/bin/bash
+#waybar.modules
+
+function wb_clock {
+	date '+%H:%M %Y-%m-%d'
+}
+
+function wb_memory {
+	free | awk '/^Mem/ { printf("  %02d%%", $3/$2 * 100.0) }'
+}
+
+function wb_cpu {
+	printf " %02d%%" $(mpstat --dec=0 | tail -1 | awk '{print $NF}' | awk '{print 100-$1}')
+}
+
+function wb_weather {
+	showWeatherLocation=false
+	showWeatherIcon=true
+
+	tmpFile=/tmp/weather.tmp
+	[[ ! -f $tmpFile ]] &&  echo 0 > $tmpFile
+	
+	local locations arrLocations currLocationId currLocationName currWeather weatherStr
+
+	locations="Den Bosch, New York"
+ 
+	IFS="," read -r -a arrLocations <<< "$(echo "$locations" | sed -E 's/,  */,/g' | sed -E 's/ /_/g')"
+	
+	currLocationId=$(<$tmpFile)
+
+	if [ "$1" = "--next" ]; then
+		((currLocationId=currLocationId+1))
+		if [ $currLocationId -ge ${#arrLocations[@]} ]; then
+			currLocationId=0
+		fi
+		echo $currLocationId > $tmpFile
+	fi
+
+	weatherStr=""
+
+	currLocationName="${arrLocations[currLocationId]}"
+	currWeather=$(curl -s "https://wttr.in/$currLocationName?format=1")
+
+	if [ "$showWeatherLocation" = true ]; then
+		currLocationName="${arrLocations[currLocationId]//_/ }"
+		weatherStr+=$(echo "$currLocationName: " | sed 's/_/ /g')
+	fi
+
+	weatherStr+=$(echo "$currWeather" | awk '{print $2}')
+
+	if [ "$showWeatherIcon" = true ]; then
+		weatherStr+=$(echo "$currWeather" | awk '{print " " $1}')
+	fi
+	
+	printf "%s" "$weatherStr"
+}
+
+function main {
+	case "$1" in
+		"clock") wb_clock ;;
+		"memory") wb_memory ;;
+		"cpu") wb_cpu ;;
+		"weather") wb_weather "$2";;
+	esac
+}
+
+main "$@"
