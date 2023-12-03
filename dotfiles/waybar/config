@@ -20,7 +20,6 @@
 
     "modules-left": [
     	"hyprland/workspaces",
-    	"custom/separator-right",
     	"hyprland/window"
     ],
 
@@ -32,7 +31,7 @@
     	"pulseaudio",
     	"network",
     	"custom/cpu",
-    	"custom/mem",
+    	"custom/memory",
         "custom/weather",
     	"custom/clock"
     ],
@@ -76,11 +75,11 @@
 		"tooltip": false
 	},
 	
-	"custom/mem": {
-		"exec": "~/scripts/wbmodule memory",
-		"interval": 4,
-		"tooltip": false
-	},
+	"custom/memory": {
+        "exec": "~/scripts/wbmodule memory",
+        "interval": 4,
+        "tooltip": false
+    },
 
     "custom/weather": {
         "exec": "~/scripts/wbmodule weather",
