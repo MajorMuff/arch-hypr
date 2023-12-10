@@ -2,6 +2,8 @@
 
 function do_convert {
 
+	local filename extension tmp newWidth newHeight
+	
 	filename=$(basename -- "$1")
 	extension="${filename##*.}"
 	filename="${filename%.*}"
@@ -26,18 +28,10 @@ function do_convert {
 	if [[ "$newWidth" -gt 2560 ]] || [[ "$newHeight" -gt 1440 ]]; then
 
 		# crop if width or height is too large after resize operation
-		magick "$tmp" -crop 2560x1440+0+0 "${tmp}_1"
-		mv "${tmp}_1" "$tmp"
+		magick "$tmp" -crop 2560x1440+0+0 "${tmp}_2"
 	fi
 
-	# convert file to png if necessary
-	if [ "$extension" != "png" ]; then
-		magick "$tmp" "${tmp}.png"
-	else
-		mv "$tmp" "${tmp}.png"
-	fi
-
-	mv "${tmp}.png" "$HOME/Pictures/wallpapers/${filename}.png"
+	mv "${tmp2}_2" "$HOME/Pictures/wallpapers/${filename}.${extension}"
 }
 
 do_convert "$@"

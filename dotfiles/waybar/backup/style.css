@@ -60,27 +60,27 @@
 #workspaces button:nth-child(5) { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
 #workspaces button:nth-child(5):hover { background: linear-gradient(166deg, shade(@grad_5, 1.4), shade(@grad_5, 0.8)); }
 
-#workspaces button:nth-child(6) { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
-#workspaces button:nth-child(6):hover { background: linear-gradient(166deg, shade(@grad_5, 1.4), shade(@grad_5, 0.8)); }
+#workspaces button:nth-child(6) { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); }
+#workspaces button:nth-child(6):hover { background: linear-gradient(166deg, shade(@grad_6, 1.4), shade(@grad_6, 0.8)); }
 
-#workspaces button:nth-child(7) { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
-#workspaces button:nth-child(7):hover { background: linear-gradient(166deg, shade(@grad_5, 1.4), shade(@grad_5, 0.8)); }
+#workspaces button:nth-child(7) { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); }
+#workspaces button:nth-child(7):hover { background: linear-gradient(166deg, shade(@grad_6, 1.4), shade(@grad_6, 0.8)); }
 
-#workspaces button:nth-child(8) { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
-#workspaces button:nth-child(8):hover { background: linear-gradient(166deg, shade(@grad_5, 1.4), shade(@grad_5, 0.8)); }
+#workspaces button:nth-child(8) { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); }
+#workspaces button:nth-child(8):hover { background: linear-gradient(166deg, shade(@grad_6, 1.4), shade(@grad_6, 0.8)); }
 
-#workspaces button:nth-child(9) { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
-#workspaces button:nth-child(9):hover { background: linear-gradient(166deg, shade(@grad_5, 1.4), shade(@grad_5, 0.8)); }
+#workspaces button:nth-child(9) { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); }
+#workspaces button:nth-child(9):hover { background: linear-gradient(166deg, shade(@grad_6, 1.4), shade(@grad_6, 0.8)); }
 
 
 #window {
 	color: @txt_widget;
 	font-style: italic;
-	margin: 6px 20px;
+	margin: 5px 20px;
 }
 
 
-#custom-mem, #custom-cpu, #custom-clock, #custom-weather, #network, #pulseaudio, #tray {
+#custom-memory, #custom-cpu, #custom-clock, #custom-weather, #network, #pulseaudio, #tray {
 	color: @txt_widget;
 	padding: 6px 30px;
 	box-shadow: inset 0 1px rgba(255,255,255,0.04), inset 0 -1px rgba(0,0,0,0.6), 2px 2px 4px rgba(0,0,0,0.2);
@@ -90,7 +90,7 @@
 
 #custom-clock { background: linear-gradient(166deg, shade(@grad_1, 1.1), shade(@grad_1, 0.9)); }
 #custom-weather { background: linear-gradient(166deg, shade(@grad_2, 1.1), shade(@grad_2, 0.9)); }
-#custom-mem { background: linear-gradient(166deg, shade(@grad_3, 1.1), shade(@grad_3, 0.9)); }
+#custom-memory { background: linear-gradient(166deg, shade(@grad_3, 1.1), shade(@grad_3, 0.9)); }
 #custom-cpu { background: linear-gradient(166deg, shade(@grad_4, 1.1), shade(@grad_4, 0.9)); }
 #network { background: linear-gradient(166deg, shade(@grad_5, 1.1), shade(@grad_5, 0.9)); }
 #pulseaudio { background: linear-gradient(166deg, shade(@grad_6, 1.1), shade(@grad_6, 0.9)); }

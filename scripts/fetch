@@ -29,7 +29,7 @@ function print_fetch_default {
 	
 	uptime=$(uptime -p | sed 's/up //')
 	ram=$(free -m | grep 'Mem' | xargs | cut -d ' ' -f 3 | rev | sed 's/.../&./g;s/\.$//' | rev)
-
+	
 	p
 
 	if ! [[ $* == *-t* ]]; then

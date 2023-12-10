@@ -1,66 +1,66 @@
 #!/bin/bash
-#waybar.modules
 
-function wb_clock {
+function module_clock {
 	date '+%H:%M %Y-%m-%d'
 }
 
-function wb_memory {
-	free | awk '/^Mem/ { printf("  %02d%%", $3/$2 * 100.0) }'
+function module_ram {
+	free | awk '/^Mem/ { printf("%02d%%", $3/$2 * 100.0) }'
 }
 
-function wb_cpu {
-	printf " %02d%%" $(mpstat --dec=0 | tail -1 | awk '{print $NF}' | awk '{print 100-$1}')
+function module_cpu {
+	printf "%02d%%" "$(mpstat --dec=0 | tail -1 | awk '{print $NF}' | awk '{print 100-$1}')"
 }
 
-function wb_weather {
-	showWeatherLocation=false
-	showWeatherIcon=true
+function module_weather {
+	local meteo temperature precipitation cloud_cover icon
 
-	tmpFile=/tmp/weather.tmp
-	[[ ! -f $tmpFile ]] &&  echo 0 > $tmpFile
-	
-	local locations arrLocations currLocationId currLocationName currWeather weatherStr
+	meteo=$(curl -s "https://api.open-meteo.com/v1/forecast?latitude=51.6992&longitude=5.3042&current=temperature_2m,cloud_cover,precipitation&timezone=auto" | jq '.current' | grep -E 'temperature|precipitation|cloud_cover' | sed 's/,//g')
 
-	locations="Den Bosch, New York"
- 
-	IFS="," read -r -a arrLocations <<< "$(echo "$locations" | sed -E 's/,  */,/g' | sed -E 's/ /_/g')"
-	
-	currLocationId=$(<$tmpFile)
+	temperature=$(grep 'temperature_2m' <<< "$meteo" | awk '{print $2}')
+	precipitation=$(grep 'precipitation' <<< "$meteo" | awk '{print $2}')
+	cloud_cover=$(grep 'cloud_cover' <<< "$meteo" | awk '{print $2}')
 
-	if [ "$1" = "--next" ]; then
-		((currLocationId=currLocationId+1))
-		if [ $currLocationId -ge ${#arrLocations[@]} ]; then
-			currLocationId=0
-		fi
-		echo $currLocationId > $tmpFile
+	if (( $(echo "$precipitation > 1" | bc -l) )); then
+		icon="rain"
+	elif (( $(echo "$cloud_cover > 80" | bc -l) )); then
+		icon="clouds"
+	else
+		icon="clear"
 	fi
 
-	weatherStr=""
+	printf "{ \"text\": \"%s°C\", \"alt\": \"%s\" }\n" "$temperature" "$icon"
 
-	currLocationName="${arrLocations[currLocationId]}"
-	currWeather=$(curl -s "https://wttr.in/$currLocationName?format=1")
+}
 
-	if [ "$showWeatherLocation" = true ]; then
-		currLocationName="${arrLocations[currLocationId]//_/ }"
-		weatherStr+=$(echo "$currLocationName: " | sed 's/_/ /g')
-	fi
+function module_toggles {
+	local arrToggleFiles arrToggleIcons toggles
 
-	weatherStr+=$(echo "$currWeather" | awk '{print $2}')
-
-	if [ "$showWeatherIcon" = true ]; then
-		weatherStr+=$(echo "$currWeather" | awk '{print " " $1}')
-	fi
+	arrToggleFiles=(
+		"/tmp/gamemode.toggle"
+		"/tmp/gammastep.toggle"
+	)
 	
-	printf "%s" "$weatherStr"
+	arrToggleIcons=(
+		""
+		""
+	)
+
+	toggles=""
+	for ((i=0; i<${#arrToggleFiles[@]}; i++)); do
+		[[ -f ${arrToggleFiles[i]} ]] && toggles+="  ${arrToggleIcons[i]}  "
+	done
+
+	printf "%s" "$toggles"
 }
 
 function main {
 	case "$1" in
-		"clock") wb_clock ;;
-		"memory") wb_memory ;;
-		"cpu") wb_cpu ;;
-		"weather") wb_weather "$2";;
+		"--clock") module_clock ;;
+		"--ram") module_ram ;;
+		"--cpu") module_cpu ;;
+		"--weather") module_weather ;;
+		"--toggles") module_toggles ;;
 	esac
 }
 

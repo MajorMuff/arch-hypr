@@ -1,0 +1,128 @@
+#!/bin/bash
+
+function paclog {
+
+	local curdate prevdate output line icon action colInstall colRemove rcol pacmanLog tmpLog newLog
+
+	pacmanLog=/var/log/pacman.log
+	tmpLog=/tmp/paclog.tmp
+	newLog=/var/log/pacman_new.log
+	icon=""
+
+	qInstalled='/pacman -S [a-zA-Z0-9].*/'
+	qUninstalled='/pacman -Rs [a-zA-Z0-9]/'
+
+	printf "" > $tmpLog
+
+	if [[ "$*" == *"w"* ]]; then
+		local w=1
+		printf "" > $newLog
+	fi
+
+	if [[ "$*" == *"i"* ]]; then
+		awkQuery="$qInstalled"
+	elif [[ "$*" == *"u"* ]]; then
+		awkQuery="$qUninstalled"
+	else
+		awkQuery="${qInstalled}||${qUninstalled}"
+	fi
+
+	awk "${awkQuery}" $pacmanLog | \
+	sed -e 's/\[//g' \
+		-e 's/\]//g' \
+		-e 's/T/ /g'\
+		-e 's/'\''//g' \
+		-e 's/+[0-9]*/ /g' \
+		-e 's/[ ]{1,}/ /g' | \
+	awk -v OFS=' ' '{print $1, $2, $6, $7}' > $tmpLog
+
+	if [[ "$*" == *"r"* ]]; then
+
+		local revtmp tmpLog2 arrDates
+
+		revtmp=/tmp/paclog_rev.tmp
+		tmpLog2=/tmp/paclog_rev2.tmp
+		tac $tmpLog > $revtmp
+		cat $tmpLog > $tmpLog2
+		
+		printf "" > $tmpLog
+
+		read -ra arrDates <<< "$(cat $revtmp | awk '{print $1}' | uniq | xargs)"
+
+		for ((i=0;i<${#arrDates[@]};i++)); do
+			grep "${arrDates[i]}" $tmpLog2 >> $tmpLog
+		done
+
+		rm $revtmp
+		rm $tmpLog2
+	fi
+
+	if [ -z "$w" ]; then
+		colInstall=$(tput sgr0)
+		colRemove=$(tput setaf 241)
+		rcol=$(tput sgr0)
+	fi
+
+	IFS=''
+	while read -r line; do
+
+		line=$(xargs <<< "$line")
+
+		curdate=$(awk '{print $1}' <<< "$line")
+		curtime=$(awk '{print $2}' <<< "$line")
+		action=$(awk '{print $3}' <<< "$line" | cut -c2)
+		name=$(awk '{print $4}' <<< "$line")
+
+		if [ -n "$w" ]; then
+			if [ "$action" = "S" ]; then
+				icon="+"
+			else
+				icon="-"
+			fi
+		fi
+
+		output=""
+
+		if [ -z "$prevdate" ]; then
+			output+=$(printf "\n ╔════════════╕\n ║ %s │\n ╚═══════════════════════════════════════════════════════════════╗" "${curdate}")
+			prevdate="$curdate"
+		elif [ ! "$prevdate" = "$curdate" ]; then
+			output+=$(printf "\n  ╘══════════════════════════════════════════════════════════════╝")
+			output+=$(printf "\n\n ╔════════════╕\n ║ %s │\n ╚═══════════════════════════════════════════════════════════════╗" "${curdate}")
+			prevdate=$curdate
+
+		fi
+
+		output+=$(printf "\n  │ ")
+
+		if [ "$action" = "R" ]; then
+			output+=$(printf "%s" "${colRemove}")
+		else
+			output+=$(printf "%s" "${colInstall}")
+		fi
+
+		output+=$(printf "%s " "${curtime}")
+
+		output+=$(printf "%s %-48s" "$icon" "$name")
+			
+		output+=$(printf "%s" "${rcol}")
+
+		output+=$(printf "  ║")
+
+		if [ -n "$w" ]; then
+			printf "%s" "$output" >> $newLog
+		else
+			printf "%s" "$output"
+		fi
+
+	done < $tmpLog
+
+	if [ -n "$w" ]; then
+		printf "\n  ╘══════════════════════════════════════════════════════════════╝\n\n" >> $newLog
+		printf "\nLog written to %s\n\n" "$newLog"
+	else
+		printf "\n  ╘══════════════════════════════════════════════════════════════╝\n\n"
+	fi	
+}
+
+paclog "$@"

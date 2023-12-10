@@ -55,14 +55,15 @@ function log_notify {
 	exit 1
 }
 
-# gamemode toggles opacity and blur for all windows
 function toggle_gamemode {
-	local procfile="/tmp/gamemode.proc"
-	[ -f "$procfile" ] && exit 1
-	if ! touch "$procfile"; then log_notify "gamemode-proc"; fi
+	local procFile="/tmp/gamemode.proc"
+	local toggleFile="/tmp/gamemode.toggle"
+
+	[[ -f "$procFile" ]] && exit 1
+
+	touch "$procFile"
 
 	local defActiveOpacity defInactiveOpacity
-	local toggleFile="/tmp/gamemode.toggle"
 	local mainConfigFile="$HOME/dotfiles/main.conf"
 
 	if [ -f "$toggleFile" ]; then 
@@ -82,20 +83,21 @@ function toggle_gamemode {
 	fi
 
 	sleep 2
-	rm "$procfile"
+	rm "$procFile"
 }
 
-# toggles gammastep on/off
 function toggle_gammastep {
 	local procfile="/tmp/gammastep.proc"
+	local toggleFile="/tmp/gammastep.toggle"
 
-	[[ -f /tmp/gammastep_proc ]] && exit 1
-	if ! touch "$procfile"; then log_notify "gammastep-proc"; fi
+	[[ -f $procfile ]] && exit 1
 
 	if pidof gammastep >/dev/null; then
 		killall gammastep
+		rm "$toggleFile"
 		notify-send "Gammastep" "Gammastep disabled."
 	else
+		touch "$toggleFile"
 		"$HOME"/scripts/launch gammastep -l 51.720633:5.310972
 		notify-send "Gammastep" "Gammastep enabled."
 	fi
@@ -104,7 +106,6 @@ function toggle_gammastep {
 	rm "$procfile"
 }
 
-# start swayidle to turn off displays on idle
 function start_swayidle {
 	if pidof swayidle >/dev/null; then exit 1; fi
 
@@ -113,7 +114,6 @@ function start_swayidle {
 		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2'
 }
 
-# switches to new random wallpaper from Pictures/wallpapers folder
 function wallpaper {
 	local wpFolder randomWallpaper filename
 
@@ -128,7 +128,6 @@ function wallpaper {
 	hyprpaper &
 }
 
-# increase (-i), decrease (-d), or mute (-m) volume using pactl
 function volume {
 	case "$1" in
 		"-i")
@@ -145,7 +144,6 @@ function volume {
 	esac
 }
 
-# uses grim to create screenshot, either from a selection (-s) or fullscreen (-f), and copies it to the clipboard
 function screenshot {
 	local savedir filename
 
@@ -180,12 +178,31 @@ function screenshot {
 	esac
 }
 
-case "$1" in
-	"--gamemode") toggle_gamemode ;;
-	"--gammastep") toggle_gammastep ;;
-	"--swayidle") start_swayidle ;;
-	"--wallpaper") wallpaper ;;
-	"--volume") volume "$2" ;;
-	"--screenshot") screenshot "$2" ;;
-	"--help"|*) usage ;;
-esac
+function waybarctl {
+	case "$1" in
+		"reset")
+			if pidof "waybar"; then
+				killall waybar
+				sleep 0.2s
+			fi
+			launch waybar
+			;;
+		*)
+			exit 1;
+	esac
+}
+
+function main {
+	case "$1" in
+		"--gamemode") toggle_gamemode ;;
+		"--gammastep") toggle_gammastep ;;
+		"--swayidle") start_swayidle ;;
+		"--wallpaper") wallpaper ;;
+		"--volume") volume "$2" ;;
+		"--screenshot") screenshot "$2" ;;
+		"waybar") waybarctl "$2" ;;
+		"--help"|*) usage ;;
+	esac
+}
+
+main "$@"

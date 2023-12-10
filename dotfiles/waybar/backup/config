@@ -20,7 +20,6 @@
 
     "modules-left": [
     	"hyprland/workspaces",
-    	"custom/separator-right",
     	"hyprland/window"
     ],
 
@@ -32,7 +31,7 @@
     	"pulseaudio",
     	"network",
     	"custom/cpu",
-    	"custom/mem",
+    	"custom/memory",
         "custom/weather",
     	"custom/clock"
     ],
@@ -64,41 +63,27 @@
         "sort-by-number": true
     },
 
-	"custom/separator-left": {
-		"format": " "
-	},
-
-	"custom/separator-right": {
-			"format": " "
-	},
-
-	"custom/user": {
-		"exec": "~/scripts/waybar/user-host",
-		"on-click": "~/scripts/waybar/powermenu"
-	},
-
 	"custom/clock": {
-		"exec": "~/scripts/waybar/clock",
+		"exec": "~/scripts/wbmodule clock",
 		"interval": 1,
 		"tooltip": false,
-        "on-click": "/usr/bin/kitty"
 	},
 
 	"custom/cpu": {
-		"exec": "~/scripts/waybar/cpu",
+		"exec": "~/scripts/wbmodule cpu",
 		"interval": 4,
 		"tooltip": false
 	},
 	
-	"custom/mem": {
-		"exec": "~/scripts/waybar/mem",
-		"interval": 4,
-		"tooltip": false
-	},
+	"custom/memory": {
+        "exec": "~/scripts/wbmodule memory",
+        "interval": 4,
+        "tooltip": false
+    },
 
     "custom/weather": {
-        "exec": "~/scripts/waybar/weather",
-        "on-click": "~/scripts/waybar/weather --next",
+        "exec": "~/scripts/wbmodule weather",
+        "on-click": "~/scripts/wbmodule weather --next",
         "interval": 60,
         "tooltip": false
     },
