@@ -72,7 +72,7 @@ def module_weather():
     coords = json.load(open('/home/coen/dotfiles/private.json'))['location']
     latitude = str(coords['latitude'])
     longtitude = str(coords['longtitude'])
-
+    
     features = 'temperature_2m,cloud_cover,precipitation,is_day'
 
     url = str('https://api.open-meteo.com/v1/forecast?latitude=' + latitude + '&longitude=' + longtitude + '&current=' + features + '&timezone=auto')
@@ -84,7 +84,7 @@ def module_weather():
     is_day = int(result["is_day"])
 
 
-    if precipitation > 0.5:
+    if precipitation > 0.25:
         icon = 'rain'
     elif cloud_cover > 60:
         icon = 'clouds'
@@ -142,38 +142,17 @@ def module_ram():
 
 
 
-def get_processor_name():
-    import os, platform, subprocess, re
-
-    if platform.system() == "Windows":
-        return platform.processor()
-    elif platform.system() == "Darwin":
-        os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
-        command ="sysctl -n machdep.cpu.brand_string"
-        return subprocess.check_output(command).strip()
-    elif platform.system() == "Linux":
-        command = "cat /proc/cpuinfo"
-        all_info = subprocess.check_output(command, shell=True).decode().strip()
-        for line in all_info.split("\n"):
-            if "model name" in line:
-                return re.sub( ".*model name.*:", "", line,1)
-    return ""
-
-
-
 def module_cpu():
-    import psutil
+    import psutil, subprocess, re
 
     idle_percentage = psutil.cpu_times_percent(interval=2, percpu=False).idle
     usage_percentage = str(round(100.0 - idle_percentage, 2)) + '%'
     
-    cpu = get_processor_name().split(' ')
-    cpu_name = ''
-    for i in range(1,5):
-        if not cpu_name == '':
-            cpu_name += ' '
+    cpu_info = subprocess.check_output("cat /proc/cpuinfo", shell=True).decode().strip()
 
-        cpu_name += cpu[i]
+    for line in cpu_info.split("\n"):
+        if "model name" in line:
+            cpu_name=re.sub( ".*model name.*:", "", line,1)
 
     tooltip  = title('CPU\n')
     tooltip += ' Model: ' + cpu_name

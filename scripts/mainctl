@@ -96,7 +96,7 @@ function toggle_gamemode {
 	touch "$procFile"
 
 	if [ -f "$toggleFile" ]; then 
-		local activeOpacity inactiveOpacity fullscreenOpacity gapsIn gapsOut
+		local activeOpacity inactiveOpacity fullscreenOpacity gapsIn gapsOut dropShadow rounding blur
 
 		activeOpacity=$(jq ".hyprland.decoration.active_opacity" "$globalConf")
 		inactiveOpacity=$(jq ".hyprland.decoration.inactive_opacity" "$globalConf")
