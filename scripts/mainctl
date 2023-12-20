@@ -23,6 +23,7 @@
 #     --help                show this information and exit
 
 globalConf="$HOME/dotfiles/global.json"
+privateConf="$HOME/dotfiles/private.json"
 
 function usage {
 	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
@@ -71,7 +72,7 @@ function toggle_gammastep {
 		notify-send "Gammastep" "Gammastep disabled."
 	else
 		touch "$toggleFile"
-		"$HOME"/scripts/launch gammastep -l "$(jq '.location.latitude' "$globalConf"):$(jq '.location.longtitude' "$globalConf")"
+		"$HOME"/scripts/launch gammastep -l "$(jq '.location.latitude' "$privateConf"):$(jq '.location.longtitude' "$privateConf")"
 		notify-send "Gammastep" "Gammastep enabled."
 	fi
 

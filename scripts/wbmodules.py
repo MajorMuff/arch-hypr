@@ -67,10 +67,12 @@ def title(string):
 
 
 def module_weather():
-    import requests
+    import requests, json
 
-    latitude = '51.6992'
-    longtitude = '5.3042'
+    coords = json.load(open('/home/coen/dotfiles/private.json'))['location']
+    latitude = str(coords['latitude'])
+    longtitude = str(coords['longtitude'])
+
     features = 'temperature_2m,cloud_cover,precipitation,is_day'
 
     url = str('https://api.open-meteo.com/v1/forecast?latitude=' + latitude + '&longitude=' + longtitude + '&current=' + features + '&timezone=auto')
