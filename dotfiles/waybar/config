@@ -25,12 +25,8 @@
     ],
 
     "modules-right": [
-    	"tray",
-        "custom/toggles",
-        "custom/separator",
+        "tray",
     	"pulseaudio",
-        "custom/separator",
-    	"network",
         "custom/separator",
     	"custom/cpu",
         "custom/separator",
@@ -38,7 +34,12 @@
         "custom/separator",
         "custom/weather",
         "custom/separator",
+        "custom/network",
+        "custom/separator",
     	"custom/clock",
+        "custom/separator",
+        "custom/toggles",
+        "custom/separator",
         "group/power"
     ],
 
@@ -77,31 +78,28 @@
         "orientation": "inherit",
         "drawer": {
             "transition-duration": 300,
-            "children-class": "not-power",
+            "children-class": "drawer-child",
             "transition-left-to-right": false,
         },
         "modules": [
             "custom/power",
             "custom/quit",
-            "custom/lock",
-            "custom/reboot",
+            "custom/reboot"
         ]
     },
+
     "custom/quit": {
         "format": "󰗼",
         "tooltip": false,
         "on-click": "hyprctl dispatch exit"
     },
-    "custom/lock": {
-        "format": "󰍁",
-        "tooltip": false,
-        "on-click": "swaylock"
-    },
+
     "custom/reboot": {
         "format": "󰜉",
         "tooltip": false,
         "on-click": "reboot"
     },
+
     "custom/power": {
         "format": "",
         "tooltip": false,
@@ -109,47 +107,61 @@
     },
 
     "custom/clock": {
+        "return-type": "json",
+        "exec": "wbmodules.py --clock",
         "format": "{}",
-        "exec": "~/scripts/wbmodule --clock",
         "interval": 1,
         "tooltip": false,
         "format-icons": [""]
     },
 
 	"custom/cpu": {
+        "return-type": "json",
+		"exec": "wbmodules.py --cpu",
         "format": "{} {icon}",
-		"exec": "~/scripts/wbmodule --cpu",
 		"interval": 4,
-		"tooltip": false,
+		"tooltip": true,
         "format-icons": [""]
 	},
 	
 	"custom/memory": {
+        "return-type": "json",
+        "exec": "wbmodules.py --ram",
         "format": "{} {icon}",
-        "exec": "~/scripts/wbmodule --ram",
         "interval": 4,
-        "tooltip": false,
-        "format-icons": [""]
+        "tooltip": true,
+        "format-icons": [" "]
     },
 
     "custom/weather": {
         "return-type": "json",
-        "exec": "~/scripts/wbmodule --weather",
+        "exec": "wbmodules.py --weather",
         "format": "{} {icon}",
         "interval": 240,
-        "tooltip": false,
+        "tooltip": true,
         "format-icons": {
-            "rain": "",
-            "clouds": "",
-            "clear": ""
+            "rain": "",
+            "clouds": " ",
+            "clear": "",
+            "clear_night": ""
         }
     },
 
     "custom/toggles": {
+        "return-type": "json",
+        "exec": "wbmodules.py --toggles",
         "format": "{}",
-        "exec": "~/scripts/wbmodule --toggles",
         "interval": 1,
-        "tooltip": false
+        "tooltip": true
+    },
+
+    "custom/network": {
+        "return-type": "json",
+        "exec": "wbmodules.py --network",
+        "format": "{} {icon}",
+        "interval": 120,
+        "tooltip": true,
+        "format-icons": [""]
     },
 
     "hyprland/window": {

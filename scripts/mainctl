@@ -22,6 +22,8 @@
 #
 #     --help                show this information and exit
 
+globalConf="$HOME/dotfiles/global.json"
+
 function usage {
 	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
 	printf "    --gamemode            toggles opacity and blur for all active windows\n"
@@ -55,6 +57,35 @@ function log_notify {
 	exit 1
 }
 
+function toggle_gammastep {
+	local procFile="/tmp/gammastep.proc"
+	local toggleFile="/tmp/gammastep.toggle"
+
+	[[ -f $procFile ]] && exit 1
+
+	touch "$procFile"
+
+	if pidof gammastep >/dev/null; then
+		killall gammastep
+		rm "$toggleFile"
+		notify-send "Gammastep" "Gammastep disabled."
+	else
+		touch "$toggleFile"
+		"$HOME"/scripts/launch gammastep -l "$(jq '.location.latitude' "$globalConf"):$(jq '.location.longtitude' "$globalConf")"
+		notify-send "Gammastep" "Gammastep enabled."
+	fi
+
+	sleep 4
+	rm "$procFile"
+}
+
+function start_swayidle {
+	if pidof swayidle >/dev/null; then exit 1; fi
+	
+	swayidle timeout 360 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
+		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2' &
+}
+
 function toggle_gamemode {
 	local procFile="/tmp/gamemode.proc"
 	local toggleFile="/tmp/gamemode.toggle"
@@ -63,55 +94,49 @@ function toggle_gamemode {
 
 	touch "$procFile"
 
-	local defActiveOpacity defInactiveOpacity
-	local mainConfigFile="$HOME/dotfiles/main.conf"
-
 	if [ -f "$toggleFile" ]; then 
-		defActiveOpacity=$(grep 'defActiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
-		defInactiveOpacity=$(grep 'defInactiveOpacity' "$mainConfigFile" | cut -d':' -f2 | xargs)
-		hyprctl keyword decoration:active_opacity "$defActiveOpacity" &&
-		hyprctl keyword decoration:inactive_opacity "$defInactiveOpacity" &&
-		hyprctl keyword decoration:blur:enabled true
+		local activeOpacity inactiveOpacity fullscreenOpacity gapsIn gapsOut
+
+		activeOpacity=$(jq ".hyprland.decoration.active_opacity" "$globalConf")
+		inactiveOpacity=$(jq ".hyprland.decoration.inactive_opacity" "$globalConf")
+		fullscreenOpacity=$(jq ".hyprland.decoration.fullscreen_opacity" "$globalConf")
+		dropShadow=$(jq ".hyprland.decoration.drop_shadow" "$globalConf")
+		rounding=$(jq ".hyprland.decoration.rounding" "$globalConf")
+		blur=$(jq ".hyprland.decoration.blur.enabled" "$globalConf")
+
+		gapsIn=$(jq ".hyprland.general.gaps_in" "$globalConf")
+		gapsOut=$(jq ".hyprland.general.gaps_out" "$globalConf")
+
+		hyprctl --batch "\
+			keyword decoration:active_opacity $activeOpacity;\
+			keyword decoration:inactive_opacity $inactiveOpacity;\
+			keyword decoration:fullscreen_opacity $fullscreenOpacity;\
+			keyword decoration:drop_shadow $dropShadow;\
+			keyword decoration:blur:enabled $blur;\
+			keyword decoration:rounding $rounding;\
+			keyword general:gaps_in $gapsIn;\
+			keyword general:gaps_out $gapsOut"
+
+		start_swayidle
 		rm "$toggleFile"
 		notify-send "Gamemode" "Gamemode disabled."
 	else
-		hyprctl keyword decoration:active_opacity 1 &&
-		hyprctl keyword decoration:inactive_opacity 1 &&
-		hyprctl keyword decoration:blur:enabled false
+		hyprctl --batch "\
+			keyword decoration:active_opacity 1;\
+			keyword decoration:inactive_opacity 1;\
+			keyword decoration:fullscreen_opacity 1;\
+			keyword decoration:drop_shadow false;\
+			keyword decoration:rounding 0;\
+			keyword decoration:blur:enabled false;\
+			keyword general:gaps_in 0;\
+			keyword general:gaps_out 0"
+		killall swayidle
 		touch "$toggleFile"
 		notify-send "Gamemode" "Gamemode enabled."
 	fi
 
 	sleep 2
 	rm "$procFile"
-}
-
-function toggle_gammastep {
-	local procfile="/tmp/gammastep.proc"
-	local toggleFile="/tmp/gammastep.toggle"
-
-	[[ -f $procfile ]] && exit 1
-
-	if pidof gammastep >/dev/null; then
-		killall gammastep
-		rm "$toggleFile"
-		notify-send "Gammastep" "Gammastep disabled."
-	else
-		touch "$toggleFile"
-		"$HOME"/scripts/launch gammastep -l 51.720633:5.310972
-		notify-send "Gammastep" "Gammastep enabled."
-	fi
-
-	sleep 4
-	rm "$procfile"
-}
-
-function start_swayidle {
-	if pidof swayidle >/dev/null; then exit 1; fi
-
-	swayidle \
-		timeout 360 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
-		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2'
 }
 
 function wallpaper {

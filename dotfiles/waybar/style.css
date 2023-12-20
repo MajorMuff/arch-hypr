@@ -10,15 +10,10 @@
 */
 
 
-
 * {
 	all: unset;
 	font-family: FontAwesome, Source Code Pro, Roboto, Helvetica, Arial, sans-serif;
 	font-size: 10pt;
-}
-
-.modules-left, .modules-center, .modules-right {
-	margin-top: 4px;
 }
 
 .modules-left {
@@ -29,10 +24,19 @@
 	margin-right: 8px;
 }
 
+.modules-right widget label {
+	padding: 0 20px;
+	color: #b1b1b1;
+}
+
+.modules-left, .modules-center, .modules-right {
+	text-shadow: 1px 1px 1px #000;
+}
+
 #workspaces button {
 	color: #c1c1c1;
 	background: linear-gradient(166deg, rgba(255,255,255,0), rgba(255,255,255,0));
-	text-shadow: 0 0 5px rgba(255,255,255,0.2);
+	text-shadow: 0 0 5px rgba(0,0,0,0.2);
 	padding: 0 20px;
 	transition-property: background, color, padding, text-shadow;
 	transition-duration: .2s;
@@ -43,7 +47,7 @@
 	padding: 0 50px;
 	color: #f1f1f1;
 	text-shadow: 0 0 7px rgba(255,255,255,0.6);
-	background: rgba(255,255,255,0.07);
+	background: rgba(255,255,255,0.05);
 }
 
 #workspaces button:hover {
@@ -60,28 +64,23 @@
 	font-weight: bold;
 }
 
-.modules-right widget label {
-	padding: 0 20px;
-	color: #b1b1b1;
-}
-
-#tray {
-	padding: 0 20px;
-	min-width: 0;
-}
-
-#custom-clock {
-	padding-right: 0;
-}
-
 #custom-separator {
 	padding: 0;
-	font-size: 1px;
+	font-size: 0.1px;
 	background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
 }
 
-.separator {
-	padding: 0;
-	font-size: 1px;
-	background: #fff;
+#custom-memory, #custom-cpu, #custom-weather {
+	min-width: 70px;
+}
+
+tooltip {
+	background: rgba(0,0,0,0.75);
+	border-radius: 9px;
+}
+
+tooltip label {
+	padding: 8px 16px;
+	text-shadow: 0 0 2px rgba(0,0,0,15);
+	color: #999999;
 }
