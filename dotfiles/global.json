@@ -14,11 +14,5 @@
 				"enabled": true
 			}
 		}
-	},
-
-	"location": {
-		"name": "Den Bosch",
-		"latitude": 51.720633,
-		"longtitude": 5.310972
 	}
 }
