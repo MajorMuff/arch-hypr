@@ -10,8 +10,6 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 34,
-    "margin": 4,
     "margin-bottom": 0,
     "spacing": 0,
     "output": ["DP-1","DP-2"],
@@ -108,7 +106,7 @@
 
     "custom/clock": {
         "return-type": "json",
-        "exec": "wbmodules.py --clock",
+        "exec": "wbmodules --clock",
         "format": "{}",
         "interval": 1,
         "tooltip": false,
@@ -117,7 +115,7 @@
 
 	"custom/cpu": {
         "return-type": "json",
-		"exec": "wbmodules.py --cpu",
+		"exec": "wbmodules --cpu",
         "format": "{} {icon}",
 		"interval": 4,
 		"tooltip": true,
@@ -126,7 +124,7 @@
 	
 	"custom/memory": {
         "return-type": "json",
-        "exec": "wbmodules.py --ram",
+        "exec": "wbmodules --ram",
         "format": "{} {icon}",
         "interval": 4,
         "tooltip": true,
@@ -135,7 +133,7 @@
 
     "custom/weather": {
         "return-type": "json",
-        "exec": "wbmodules.py --weather",
+        "exec": "wbmodules --weather",
         "format": "{} {icon}",
         "interval": 240,
         "tooltip": true,
@@ -149,7 +147,7 @@
 
     "custom/toggles": {
         "return-type": "json",
-        "exec": "wbmodules.py --toggles",
+        "exec": "wbmodules --toggles",
         "format": "{}",
         "interval": 1,
         "tooltip": true
@@ -157,7 +155,7 @@
 
     "custom/network": {
         "return-type": "json",
-        "exec": "wbmodules.py --network",
+        "exec": "wbmodules --network",
         "format": "{} {icon}",
         "interval": 120,
         "tooltip": true,

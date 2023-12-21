@@ -25,11 +25,13 @@
 }
 
 .modules-right widget label {
-	padding: 0 20px;
+	padding: 6px 20px;
 	color: #b1b1b1;
 }
 
 .modules-left, .modules-center, .modules-right {
+	margin-top: 4px;
+	margin-bottom: 4px;
 	text-shadow: 1px 1px 1px #000;
 }
 
@@ -58,10 +60,6 @@
 #window {
 	margin: -2px 0 0 0;
 	color: #b1b1b1;
-	font-size: 11pt;
-	font-variant: small-caps;
-	font-style: italic;
-	font-weight: bold;
 }
 
 #custom-separator {

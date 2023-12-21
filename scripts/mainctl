@@ -22,10 +22,12 @@
 #
 #     --help                show this information and exit
 
-globalConf="$HOME/dotfiles/global.json"
-privateConf="$HOME/dotfiles/private.json"
 
-function usage {
+CONF_GLOBAL="$HOME/dotfiles/global.json"
+CONF_PRIVATE="$HOME/dotfiles/private.json"
+
+
+usage() {
 	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
 	printf "    --gamemode            toggles opacity and blur for all active windows\n"
 	printf "    --gammastep           toggles gammastep on/off\n"
@@ -43,84 +45,96 @@ function usage {
 	printf "\n"
 }
 
-function log_notify {
-	local errTitle errMsg
-	local logfile="/var/log/mainctl.log"
-	case "$1" in
-		"gamemode-proc") errTitle="Gamemode"; errMsg="Failed to create temp file. No rights?" ;;
-		"gammastep-proc") errTitle="Gammastep"; errMsg="Failed to create temp file. No rights?" ;;
-	esac
 
-	printf "$(date '+%Y-%m-%d %H:%M:%S') - %s: %s\n" "$errTitle" "$errMsg" >> "$logfile"
+notify() {
+	local title message
 
-	notify-send "${errTitle}" "${errMsg}"
+	title=$(awk '{ print $1 }' <<< "$1")
+	message=$(awk '{ for (i=2; i<=NF; i++) printf $i " " }' <<< "$1")
 
-	exit 1
+	notify-send "$title" "$message"
 }
 
-function toggle_gammastep {
-	local procFile="/tmp/gammastep.proc"
-	local toggleFile="/tmp/gammastep.toggle"
 
-	[[ -f $procFile ]] && exit 1
+gamma() {
+	local proc_file toggle_file notification
 
-	touch "$procFile"
+	proc_file="/tmp/gammastep.proc"
+	toggle_file="/tmp/gammastep.toggle"
+	notification="Gammastep "
+
+	[[ -f $proc_file ]] && exit 1
+
+	touch "$proc_file"
 
 	if pidof gammastep >/dev/null; then
 		killall gammastep
-		rm "$toggleFile"
-		notify-send "Gammastep" "Gammastep disabled."
+		rm "$toggle_file"
+		notification+="Gammastep disabled."
 	else
-		touch "$toggleFile"
-		"$HOME"/scripts/launch gammastep -l "$(jq '.location.latitude' "$privateConf"):$(jq '.location.longtitude' "$privateConf")"
-		notify-send "Gammastep" "Gammastep enabled."
+		touch "$toggle_file"		
+		launch gammastep \
+			-t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" \
+			-l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
+		notification+="Gammastep enabled."
 	fi
 
+	notify "$notification"
+
 	sleep 4
-	rm "$procFile"
+	rm "$proc_file"
 }
 
-function start_swayidle {
+
+idle() {
 	if pidof swayidle >/dev/null; then exit 1; fi
+
+	timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
 	
-	swayidle timeout 360 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
+	swayidle timeout "$timeout" 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
 		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2' &
 }
 
-function toggle_gamemode {
-	local procFile="/tmp/gamemode.proc"
-	local toggleFile="/tmp/gamemode.toggle"
 
-	[[ -f "$procFile" ]] && exit 1
+gamemode() {
+	local proc_file toggle_file
 
-	touch "$procFile"
+	proc_file="/tmp/gamemode.proc"
+	toggle_file="/tmp/gamemode.toggle"
+	notification="Gamemode "
 
-	if [ -f "$toggleFile" ]; then 
-		local activeOpacity inactiveOpacity fullscreenOpacity gapsIn gapsOut dropShadow rounding blur
+	[[ -f "$proc_file" ]] && exit 1
 
-		activeOpacity=$(jq ".hyprland.decoration.active_opacity" "$globalConf")
-		inactiveOpacity=$(jq ".hyprland.decoration.inactive_opacity" "$globalConf")
-		fullscreenOpacity=$(jq ".hyprland.decoration.fullscreen_opacity" "$globalConf")
-		dropShadow=$(jq ".hyprland.decoration.drop_shadow" "$globalConf")
-		rounding=$(jq ".hyprland.decoration.rounding" "$globalConf")
-		blur=$(jq ".hyprland.decoration.blur.enabled" "$globalConf")
+	touch "$proc_file"
 
-		gapsIn=$(jq ".hyprland.general.gaps_in" "$globalConf")
-		gapsOut=$(jq ".hyprland.general.gaps_out" "$globalConf")
+	if [ -f "$toggle_file" ]; then 
+		local active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur c
+		
+		c=$(jq '.hyprland.decoration' "$CONF_GLOBAL")
+		active_opacity=$(jq "$c.active_opacity" "$CONF_GLOBAL")
+		inactive_opacity=$(jq "$c.inactive_opacity" "$CONF_GLOBAL")
+		fullscreen_opacity=$(jq "$c.fullscreen_opacity" "$CONF_GLOBAL")
+		drop_shadow=$(jq "$c.drop_shadow" "$CONF_GLOBAL")
+		rounding=$(jq "$c.rounding" "$CONF_GLOBAL")
+		blur=$(jq "$c.blur.enabled" "$CONF_GLOBAL")
+
+		c=$(jq '.hyprland.general' "$CONF_GLOBAL")
+		gaps_in=$(jq "$c.gaps_in" "$CONF_GLOBAL")
+		gaps_out=$(jq "$c.gaps_out" "$CONF_GLOBAL")
 
 		hyprctl --batch "\
-			keyword decoration:active_opacity $activeOpacity;\
-			keyword decoration:inactive_opacity $inactiveOpacity;\
-			keyword decoration:fullscreen_opacity $fullscreenOpacity;\
-			keyword decoration:drop_shadow $dropShadow;\
+			keyword decoration:active_opacity $active_opacity;\
+			keyword decoration:inactive_opacity $inactive_opacity;\
+			keyword decoration:fullscreen_opacity $fullscreen_opacity;\
+			keyword decoration:drop_shadow $drop_shadow;\
 			keyword decoration:blur:enabled $blur;\
 			keyword decoration:rounding $rounding;\
-			keyword general:gaps_in $gapsIn;\
-			keyword general:gaps_out $gapsOut"
+			keyword general:gaps_in $gaps_in;\
+			keyword general:gaps_out $gaps_out"
 
-		start_swayidle
-		rm "$toggleFile"
-		notify-send "Gamemode" "Gamemode disabled."
+		_swayidle
+		rm "$toggle_file"
+		notification+="Gamemode disabled."
 	else
 		hyprctl --batch "\
 			keyword decoration:active_opacity 1;\
@@ -132,69 +146,72 @@ function toggle_gamemode {
 			keyword general:gaps_in 0;\
 			keyword general:gaps_out 0"
 		killall swayidle
-		touch "$toggleFile"
-		notify-send "Gamemode" "Gamemode enabled."
+		touch "$toggle_file"
+		notification+="Gamemode enabled."
 	fi
 
+	_notify "$notification"
 	sleep 2
-	rm "$procFile"
+	rm "$proc_file"
 }
 
-function wallpaper {
-	local wpFolder randomWallpaper filename
 
-	wpFolder="$HOME/Pictures/wallpapers"
-	randomWallpaper=$(find "$wpFolder" -type f | shuf -n1)
-	filename=$(basename "$randomWallpaper")
+wallpaper() {
+	local wp_folder random_wallpaper filename
 
-	cp "$wpFolder/$filename" "$wpFolder/.current/wallpaper.png"
+	wp_folder="$HOME/Pictures/wallpapers"
+	random_wallpaper=$(find "$wp_folder" -type f | shuf -n1)
+	filename=$(basename "$random_wallpaper")
+
+	cp "$wp_folder/$filename" "$wp_folder/.current/wallpaper.png"
 
 	hyprctl hyprpaper unload all &&
 	killall hyprpaper &&
 	hyprpaper &
 }
 
-function volume {
+
+volume() {
 	case "$1" in
 		"-i")
 			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -ge 100 ]; then
 				pactl -- set-sink-volume 0 +2%
-			fi ;;
+			fi
+			;;
 			
 		"-d")
 			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -le 0 ]; then
 				pactl -- set-sink-volume 0 -2%
-			fi ;;
+			fi
+			;;
 			
-		"-m") pactl -- set-sink-mute 0 toggle ;;
+		"-m")
+			pactl -- set-sink-mute 0 toggle
+			;;
 	esac
 }
 
-function screenshot {
+
+screenshot() {
 	local savedir filename
 
 	savedir=/tmp
 	filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
+	notification="Screenshot "
 	 
-	function shot_selection {
+	shot_selection() {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
-			notify-send "Screenshot" "Copied to clipboard."
+			nnotification+="Copied to clipboard."
 			exit 0
-		else
-			notify-send 'Error saving file'
-			exit 1
 		fi
 	}
 			
-	function shot_fullscreen { 
+	shot_fullscreen() { 
 		if grim "$filename"; then
 			wl-copy < "$filename"
-			notify-send "Screenshot" "Copied to clipboard."
+			notification+="Copied to clipboard."
 			exit 0
-		else
-			notify-send 'Error saving file'
-			exit 1
 		fi
 	}
 
@@ -202,9 +219,12 @@ function screenshot {
 		"-s") shot_selection ;;
 		"-f") shot_fullscreen ;;
 	esac
+
+	_notify "$notification"
 }
 
-function waybarctl {
+
+waybarctl() {
 	case "$1" in
 		"reset")
 			if pidof "waybar"; then
@@ -218,16 +238,17 @@ function waybarctl {
 	esac
 }
 
-function main {
+
+main() {
 	case "$1" in
-		"--gamemode") toggle_gamemode ;;
-		"--gammastep") toggle_gammastep ;;
-		"--swayidle") start_swayidle ;;
-		"--wallpaper") wallpaper ;;
-		"--volume") volume "$2" ;;
-		"--screenshot") screenshot "$2" ;;
+		"gammastep") gamma;;
+		"swayidle") idle ;;
+		"gamemode") gamemode ;;
+		"wallpaper") wallpaper ;;
+		"volume") volume "$2" ;;
+		"screenshot") screenshot "$2" ;;
 		"waybar") waybarctl "$2" ;;
-		"--help"|*) usage ;;
+		"help"|*) usage ;;
 	esac
 }
 

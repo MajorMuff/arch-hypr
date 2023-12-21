@@ -9,7 +9,7 @@
 #   |___|\__/|___| ⊓
 #
 #
-#   Usage: wbmodules.py [MODULE]
+#   Usage: wbmodules [MODULE]
 #   Allows starting waybar modules, mostly used for displaying system information.
 #
 #     --weather    Grabs weather information from open-meteo.com and parses json for display
@@ -84,7 +84,7 @@ def module_weather():
     is_day = int(result["is_day"])
 
 
-    if precipitation > 0.25:
+    if precipitation > 0.15:
         icon = 'rain'
     elif cloud_cover > 60:
         icon = 'clouds'
