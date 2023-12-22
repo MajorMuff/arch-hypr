@@ -57,32 +57,45 @@ notify() {
 
 
 gamma() {
-	local proc_file toggle_file notification
+	local lock_file notification
 
-	proc_file="/tmp/gammastep.proc"
-	toggle_file="/tmp/gammastep.toggle"
+	lock_file="/tmp/gamma.lock"
+	[[ -f "$lock_file" ]] && exit 1
+
+	toggle_file="/tmp/gamma.toggle"
 	notification="Gammastep "
 
-	[[ -f $proc_file ]] && exit 1
-
-	touch "$proc_file"
-
-	if pidof gammastep >/dev/null; then
-		killall gammastep
-		rm "$toggle_file"
-		notification+="Gammastep disabled."
-	else
-		touch "$toggle_file"		
+	gamma_start() {
+		if pidof gammastep >/dev/null; then exit 1; fi
+		touch "$lock_file"
 		launch gammastep \
 			-t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" \
 			-l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
-		notification+="Gammastep enabled."
+			touch "$toggle_file"
+			notification+="Gammastep enabled."
+	}
+
+	gamma_stop() {
+		if ! pidof gammastep >/dev/null; then exit 1; fi
+		touch "$lock_file"
+		killall gammastep
+		rm "$toggle_file"
+		notification+="Gammastep disabled."
+	}
+
+	if [[ "$*" =~ "start" ]]; then gamma_start
+	elif [[ "$*" =~ "stop" ]]; then gamma_stop
+	elif [[ "$*" =~ "toggle" ]]; then
+		if pidof gammastep >/dev/null; then
+			gamma_stop
+		else
+			gamma_start
+		fi
 	fi
 
-	notify "$notification"
-
-	sleep 4
-	rm "$proc_file"
+	[[ ! "$*" =~ "-s" ]] && notify "$notification"
+	sleep 3
+	rm "$lock_file"
 }
 
 
@@ -97,17 +110,17 @@ idle() {
 
 
 gamemode() {
-	local proc_file toggle_file
+	local lock_file toggle_file notification
 
-	proc_file="/tmp/gamemode.proc"
+	lock_file="/tmp/gamemode.lock"
+	[[ -f "$lock_file" ]] && exit 1
+
 	toggle_file="/tmp/gamemode.toggle"
 	notification="Gamemode "
 
-	[[ -f "$proc_file" ]] && exit 1
-
-	touch "$proc_file"
-
-	if [ -f "$toggle_file" ]; then 
+	gamemode_stop() {
+		[[ ! -f "$toggle_file" ]] && exit 1
+		touch "$lock_file"
 		local active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur c
 		
 		c=$(jq '.hyprland.decoration' "$CONF_GLOBAL")
@@ -132,10 +145,14 @@ gamemode() {
 			keyword general:gaps_in $gaps_in;\
 			keyword general:gaps_out $gaps_out"
 
-		_swayidle
+		idle
 		rm "$toggle_file"
 		notification+="Gamemode disabled."
-	else
+	}
+
+	gamemode_start() {
+		[[ -f "$toggle_file" ]] && exit 1
+		touch "$lock_file"
 		hyprctl --batch "\
 			keyword decoration:active_opacity 1;\
 			keyword decoration:inactive_opacity 1;\
@@ -148,11 +165,21 @@ gamemode() {
 		killall swayidle
 		touch "$toggle_file"
 		notification+="Gamemode enabled."
+	}
+
+	if [[ "$*" =~ "start" ]]; then gamemode_start
+	elif [[ "$*" =~ "stop" ]]; then gamemode_stop
+	elif [[ "$*" =~ "toggle" ]]; then
+		if [ -f "$toggle_file" ]; then
+			gamemode_stop
+		else
+			gamemode_start
+		fi
 	fi
 
-	_notify "$notification"
+	[[ ! "$*" =~ "-s" ]] && notify "$notification"
 	sleep 2
-	rm "$proc_file"
+	rm "$lock_file"
 }
 
 
@@ -202,7 +229,7 @@ screenshot() {
 	shot_selection() {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
-			nnotification+="Copied to clipboard."
+			notification+="Copied to clipboard."
 			exit 0
 		fi
 	}
@@ -220,7 +247,7 @@ screenshot() {
 		"-f") shot_fullscreen ;;
 	esac
 
-	_notify "$notification"
+	notify "$notification"
 }
 
 
@@ -240,10 +267,17 @@ waybarctl() {
 
 
 main() {
+	if [[ $# -lt 2 ]] || [[ $# -gt 4 ]]; then
+		echo "Invalid number of arguments"
+		exit 1
+	fi
+
+	args=("${@:2}")
+
 	case "$1" in
-		"gammastep") gamma;;
+		"gammastep") gamma "${args[@]}" ;;
 		"swayidle") idle ;;
-		"gamemode") gamemode ;;
+		"gamemode") gamemode "${args[@]}";;
 		"wallpaper") wallpaper ;;
 		"volume") volume "$2" ;;
 		"screenshot") screenshot "$2" ;;

@@ -169,7 +169,7 @@ def module_cpu():
 def module_toggles():
     import os
 
-    toggles = [ 'gamemode', 'gammastep' ]
+    toggles = [ 'gamemode', 'gamma' ]
     toggle_icons = [ '', '' ]
 
     content = ''
