@@ -16,7 +16,8 @@ Bash script that manages several functions I use in Hyprland. It's a collection 
 - make screenshots
 
 ```
-
+  
+  
 [wbmodules](https://github.com/MajorMuff/arch-hypr/blob/main/scripts/wbmodules)
 ```
 Python script used to drive some modules on my waybar waybar. Currently it's used to show...
@@ -26,6 +27,7 @@ Python script used to drive some modules on my waybar waybar. Currently it's use
 - ethernet connection information (connection type, local ip, remote ip)
 
 ```
+  
 
 [paclog](https://github.com/MajorMuff/arch-hypr/blob/main/scripts/paclog)
 ```
@@ -35,5 +37,7 @@ Bash script that generates a more readable pacman logfile. It can currently...
 - color code by whether the log entry was an installation or removal (only shows in terminal)
 
 ```
+  
 
-The rest of my scripts aren't very interesting in terms of functionality, most only perform a single task.
+The rest of my scripts aren't very interesting in terms of functionality, most only perform a single task.  
+Also please note that most scripts are fairly
