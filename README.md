@@ -4,7 +4,7 @@
 - Hyprland dots: [here](https://github.com/MajorMuff/arch-hypr/tree/main/dotfiles/hypr)
 - Waybar dots: [here](https://github.com/MajorMuff/arch-hypr/tree/main/dotfiles/waybar)
 
----
+---  
 
 ### scripts
 [mainctl](https://github.com/MajorMuff/arch-hypr/blob/main/scripts/mainctl)
@@ -36,5 +36,4 @@ Bash script that generates a more readable pacman logfile. It can currently...
 ```    
   
 
-The rest of my scripts aren't very interesting in terms of functionality, most only perform a single task.  
-Also please note that most scripts are fairly
+The rest of my scripts aren't very interesting in terms of functionality, most only perform a single task.
