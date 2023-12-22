@@ -9,13 +9,13 @@ Waybar dots: [here](https://github.com/MajorMuff/arch-hypr/tree/main/dotfiles/wa
 
 ### scripts
 [mainctl](https://github.com/MajorMuff/arch-hypr/blob/main/scripts/mainctl)
-
+```
 Bash script that manages several functions I use in Hyprland. It's a collection of functions that allow me to..:
--toggle Gammastep, Swayidle, Gamemode
--switch wallpapers
--increase, decrease, mute volume
--make screenshots
-
+- toggle Gammastep, Swayidle, Gamemode
+- switch wallpapers
+- increase, decrease, mute volume
+- make screenshots
+```
 
 >[wbmodules](https://github.com/MajorMuff/arch-hypr/blob/main/scripts/wbmodules)
 >Python script used to drive some modules on my waybar waybar. Currently it's used to show..:
