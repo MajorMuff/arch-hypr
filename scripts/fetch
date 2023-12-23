@@ -10,7 +10,7 @@ print_fetch_default() {
 	local globalConf=~/dotfiles/global.json
 	local arrHex i rgb s c r uptime ram
 
-	read -ra arrHex <<< "$(jq '.fetch.colors' $globalConf | sed 's/"//g' )"
+	read -ra arrHex <<< "$(jq -r '.fetch.colors' $globalConf)"
 
 	for (( i=0; i<${#arrHex[@]}; i++ )); do
 		rgb=$(hex_rgb "${arrHex[i]}" | sed -e 's/ /;/g')
