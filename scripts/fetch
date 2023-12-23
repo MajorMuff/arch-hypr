@@ -1,14 +1,19 @@
 #!/bin/bash
 
-function print_fetch_default {
+hex_rgb() {
+	hex="$1"
+	printf "%d %d %d\n" "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
+}
 
-	local mainConf=~/dotfiles/main.conf
+print_fetch_default() {
+
+	local globalConf=~/dotfiles/global.json
 	local arrHex i rgb s c r uptime ram
 
-	read -ra arrHex <<< "$(grep '^cMainGradient' $mainConf | cut -d: -f2 | xargs)"
+	read -ra arrHex <<< "$(jq '.fetch.colors' $globalConf | sed 's/"//g' )"
 
 	for (( i=0; i<${#arrHex[@]}; i++ )); do
-		rgb=$(hex2rgb "${arrHex[i]}" | sed -e 's/ /;/g')
+		rgb=$(hex_rgb "${arrHex[i]}" | sed -e 's/ /;/g')
 		printf -v s "%s%sm" "\x1b[38;2;" "$rgb"
 		c+=("$s")
 	done

@@ -7,105 +7,87 @@
 #   |.  \    /:  | ⊏
 #   |___|\__/|___| ⊓
 #
-#   Usage: mainctl [OPTION] (ARGS)
-#     --gamemode            toggles opacity and blur for all active windows
-#     --gammastep           toggles gammastep on/off
-#     --swayidle            starts swayidle process to turn off displays after inactivity
-#     --wallpaper           chooses new random wallpaper and restarts hyprpaper
-#     --volume [ARG]        allows volume control
-#       -i                  increase volume by 2 percent
-#       -d                  decrease volume by 2 percent
-#       -m                  mute volume
-#     --screenshot [ARG]    creates screenshot and copies it to the clipboard
-#       -f                  fullscreen screenshot
-#       -s                  selection screenshot
-#
-#     --help                show this information and exit
-
+# shellcheck disable=SC1091
 
 CONF_GLOBAL="$HOME/dotfiles/global.json"
 CONF_PRIVATE="$HOME/dotfiles/private.json"
 
-
 usage() {
-	printf "\n  Usage: mainctl [OPTION] (ARGS)\n\n"
-	printf "    --gamemode            toggles opacity and blur for all active windows\n"
-	printf "    --gammastep           toggles gammastep on/off\n"
-	printf "    --swayidle            starts swayidle process to turn off displays after inactivity\n"
-	printf "    --wallpaper           chooses new random wallpaper and restarts hyprpaper\n"
-	printf "    --volume [ARG]        allows volume control\n"
-	printf "      -i                  increase volume by 2 percent\n"
-	printf "      -d                  decrease volume by 2 percent\n"
-	printf "      -m                  mute volume\n"
-	printf "    --screenshot [ARG]    creates screenshot and copies it to the clipboard\n"
-	printf "      -f                  fullscreen screenshot\n"
-	printf "      -s                  selection screenshot\n"
-	printf "\n"
-	printf "    --help                show this information and exit\n"
-	printf "\n"
+	exit 0
 }
 
 
 notify() {
-	local title message
-
-	title=$(awk '{ print $1 }' <<< "$1")
-	message=$(awk '{ for (i=2; i<=NF; i++) printf $i " " }' <<< "$1")
-
-	notify-send "$title" "$message"
+	notify-send "$1" "$2"
 }
 
 
 gamma() {
-	local lock_file notification
+	local lock_file toggle_file notification
 
 	lock_file="/tmp/gamma.lock"
-	[[ -f "$lock_file" ]] && exit 1
+	[ -f "$lock_file" ] && exit 1
 
 	toggle_file="/tmp/gamma.toggle"
-	notification="Gammastep "
+	notification=("Gammastep")
 
-	gamma_start() {
-		if pidof gammastep >/dev/null; then exit 1; fi
+	_start() {
+		pidof gammastep >/dev/null && exit 1
 		touch "$lock_file"
-		launch gammastep \
-			-t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" \
-			-l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
-			touch "$toggle_file"
-			notification+="Gammastep enabled."
+		launch gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")" 
+		touch "$toggle_file"
+		notification+=("Gammastep enabled.")
 	}
 
-	gamma_stop() {
-		if ! pidof gammastep >/dev/null; then exit 1; fi
+	_stop() {
+		pidof gammastep >/dev/null || exit 1
 		touch "$lock_file"
 		killall gammastep
 		rm "$toggle_file"
-		notification+="Gammastep disabled."
+		notification+=("Gammastep disabled.")
 	}
 
-	if [[ "$*" =~ "start" ]]; then gamma_start
-	elif [[ "$*" =~ "stop" ]]; then gamma_stop
-	elif [[ "$*" =~ "toggle" ]]; then
-		if pidof gammastep >/dev/null; then
-			gamma_stop
-		else
-			gamma_start
-		fi
-	fi
+	for cmd in "$@"; do
+		[ "$cmd" = "start" ] && _start
+		[ "$cmd" = "stop" ] && _stop
+		[ "$cmd" = "toggle" ] && if pidof gammastep >/dev/null; then _stop; else _start; fi
+	done
 
-	[[ ! "$*" =~ "-s" ]] && notify "$notification"
+	[[ "$*" =~ "-s" ]] || notify "${notification[@]}"
 	sleep 3
 	rm "$lock_file"
 }
 
 
 idle() {
-	if pidof swayidle >/dev/null; then exit 1; fi
+	local timeout notification
+	notification=("Swayidle")
 
-	timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
-	
-	swayidle timeout "$timeout" 'hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1' \
-		resume 'hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2' &
+	_start() {
+		pidof swayidle >/dev/null && exit 1
+		timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
+		on_idle=$(jq '.swayidle.actions.idle' "$CONF_GLOBAL")
+		on_resume=$(jq '.swayidle.actions.resume' "$CONF_GLOBAL")
+		swayidle timeout "$timeout" "$on_idle" resume "$on_resume" &
+		notification+=("Swayidle enabled.")
+	}
+
+	_stop() {
+		pidof swayidle >/dev/null || exit 1
+		killall swayidle
+		notification+=("Swayidle disabled.")
+	}
+
+	for cmd in "$@"; do
+		case "$cmd" in
+			"start") _start ;;
+			"stop") _stop ;;
+			"toggle") if pidof swayidle >/dev/null; then _stop; else _start; fi ;;
+			*) usage ;;
+		esac
+	done
+
+	[[ "$*" =~ '-s' ]] || notify "${notification[@]}"
 }
 
 
@@ -113,13 +95,31 @@ gamemode() {
 	local lock_file toggle_file notification
 
 	lock_file="/tmp/gamemode.lock"
-	[[ -f "$lock_file" ]] && exit 1
+	[ -f "$lock_file" ] && exit 1
 
 	toggle_file="/tmp/gamemode.toggle"
-	notification="Gamemode "
+	notification=("Gamemode")
 
-	gamemode_stop() {
-		[[ ! -f "$toggle_file" ]] && exit 1
+	_start() {
+		[ -f "$toggle_file" ] && exit 1
+		touch "$lock_file"
+		launch hyprctl --batch "\
+			keyword decoration:active_opacity 1;\
+			keyword decoration:inactive_opacity 1;\
+			keyword decoration:fullscreen_opacity 1;\
+			keyword decoration:drop_shadow false;\
+			keyword decoration:rounding 0;\
+			keyword decoration:blur:enabled false;\
+			keyword general:gaps_in 0;\
+			keyword general:gaps_out 0"
+		mainctl gamma stop -s
+		mainctl idle stop -s
+		touch "$toggle_file"
+		notification+=("Gamemode enabled.")
+	}
+
+	_stop() {
+		[ -f "$toggle_file" ] || exit 1
 		touch "$lock_file"
 		local active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur c
 		
@@ -135,7 +135,7 @@ gamemode() {
 		gaps_in=$(jq "$c.gaps_in" "$CONF_GLOBAL")
 		gaps_out=$(jq "$c.gaps_out" "$CONF_GLOBAL")
 
-		hyprctl --batch "\
+		launch hyprctl --batch "\
 			keyword decoration:active_opacity $active_opacity;\
 			keyword decoration:inactive_opacity $inactive_opacity;\
 			keyword decoration:fullscreen_opacity $fullscreen_opacity;\
@@ -144,41 +144,22 @@ gamemode() {
 			keyword decoration:rounding $rounding;\
 			keyword general:gaps_in $gaps_in;\
 			keyword general:gaps_out $gaps_out"
-
-		idle
+		mainctl idle start -s
 		rm "$toggle_file"
-		notification+="Gamemode disabled."
+		notification+=("Gamemode disabled.")
 	}
 
-	gamemode_start() {
-		[[ -f "$toggle_file" ]] && exit 1
-		touch "$lock_file"
-		hyprctl --batch "\
-			keyword decoration:active_opacity 1;\
-			keyword decoration:inactive_opacity 1;\
-			keyword decoration:fullscreen_opacity 1;\
-			keyword decoration:drop_shadow false;\
-			keyword decoration:rounding 0;\
-			keyword decoration:blur:enabled false;\
-			keyword general:gaps_in 0;\
-			keyword general:gaps_out 0"
-		killall swayidle
-		touch "$toggle_file"
-		notification+="Gamemode enabled."
-	}
+	for cmd in "$@"; do
+		case "$cmd" in
+			"start") _start ;;
+			"stop") _stop ;;
+			"toggle") if [ -f "$toggle_file" ]; then _stop; else _start; fi ;;
+			*) usage ;;
+		esac
+	done
 
-	if [[ "$*" =~ "start" ]]; then gamemode_start
-	elif [[ "$*" =~ "stop" ]]; then gamemode_stop
-	elif [[ "$*" =~ "toggle" ]]; then
-		if [ -f "$toggle_file" ]; then
-			gamemode_stop
-		else
-			gamemode_start
-		fi
-	fi
-
-	[[ ! "$*" =~ "-s" ]] && notify "$notification"
-	sleep 2
+	[[ "$*" =~ '-s' ]] || notify "${notification[@]}"
+	sleep 3
 	rm "$lock_file"
 }
 
@@ -192,62 +173,60 @@ wallpaper() {
 
 	cp "$wp_folder/$filename" "$wp_folder/.current/wallpaper.png"
 
-	hyprctl hyprpaper unload all &&
-	killall hyprpaper &&
+	hyprctl hyprpaper unload all && \
+	killall hyprpaper && \
 	hyprpaper &
 }
 
 
 volume() {
-	case "$1" in
-		"-i")
-			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -ge 100 ]; then
-				pactl -- set-sink-volume 0 +2%
-			fi
-			;;
-			
-		"-d")
-			if [ ! "$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)" -le 0 ]; then
-				pactl -- set-sink-volume 0 -2%
-			fi
-			;;
-			
-		"-m")
-			pactl -- set-sink-mute 0 toggle
-			;;
-	esac
+	local current_volume
+
+	current_volume=$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)
+
+	for cmd in "$@"; do
+		case "$cmd" in
+			"inc") [ "$current_volume" -lt 100 ] && pactl -- set-sink-volume 0 +2% ;;
+			"dec") [ "$current_volume" -gt 0 ] && pactl -- set-sink-volume 0 -2% ;;
+			"mute") pactl -- set-sink-mute 0 toggle ;;
+			*) usage ;;
+		esac
+	done
 }
 
 
 screenshot() {
-	local savedir filename
+	local savedir filename notification
 
 	savedir=/tmp
 	filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
-	notification="Screenshot "
+	notification=("Screenshot")
 	 
-	shot_selection() {
+	_selection() {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
-			notification+="Copied to clipboard."
+			notification+=("Copied to clipboard.")
 			exit 0
 		fi
 	}
 			
-	shot_fullscreen() { 
+	_fullscreen() { 
 		if grim "$filename"; then
 			wl-copy < "$filename"
-			notification+="Copied to clipboard."
+			notification+=("Copied to clipboard.")
 			exit 0
 		fi
 	}
 
-	case "$1" in
-		"-s") shot_selection ;;
-		"-f") shot_fullscreen ;;
-	esac
+	for cmd in "$@"; do
+		case "$cmd" in
+			"select") _selection ;;
+			"full") _fullscreen ;;
+			*) usage ;;
+		esac
+	done
 
-	notify "$notification"
+	[[ "$*" =~ "-s" ]] || notify "${notification[@]}"
 }
 
 
@@ -260,14 +239,13 @@ waybarctl() {
 			fi
 			launch waybar
 			;;
-		*)
-			exit 1;
+		*) exit 1 ;;
 	esac
 }
 
 
 main() {
-	if [[ $# -lt 2 ]] || [[ $# -gt 4 ]]; then
+	if [[ $# -lt 2 ]]; then
 		echo "Invalid number of arguments"
 		exit 1
 	fi
@@ -275,14 +253,14 @@ main() {
 	args=("${@:2}")
 
 	case "$1" in
-		"gammastep") gamma "${args[@]}" ;;
-		"swayidle") idle ;;
-		"gamemode") gamemode "${args[@]}";;
-		"wallpaper") wallpaper ;;
-		"volume") volume "$2" ;;
-		"screenshot") screenshot "$2" ;;
-		"waybar") waybarctl "$2" ;;
-		"help"|*) usage ;;
+		"gamma") gamma "${args[@]}" ;;
+		"idle") idle "${args[@]}" ;;
+		"gamemode") gamemode "${args[@]}" ;;
+		"wallpaper") wallpaper "${args[@]}" ;;
+		"volume") volume "${args[@]}" ;;
+		"screenshot") screenshot "${args[@]}" ;;
+		"waybar") waybarctl "${args[@]}" ;;
+		"help"|"-h"|*) usage ;;
 	esac
 }
 
