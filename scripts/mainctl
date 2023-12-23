@@ -13,6 +13,21 @@ CONF_GLOBAL="$HOME/dotfiles/global.json"
 CONF_PRIVATE="$HOME/dotfiles/private.json"
 
 usage() {
+	printf "\n  Usage:   mainctl [module] [function] (opts)\n\n"
+	printf "    gamma       [start|stop|toggle]    (-s)\n"
+	printf "      \x1b[38;2;150;150;150mProvides a blue light filter or \"night light\". (-s disables notifications)\x1b[0m\n\n"
+	printf "    idle        [start|stop|toggle]    (-s)\n"
+	printf "      \x1b[38;2;150;150;150mProvides a way to disable displays when the user is idle. (-s disables notifications)\x1b[0m\n\n"
+	printf "    gamemode    [start|stop|toggle]    (-s)\n"
+	printf "      \x1b[38;2;150;150;150mDisables gaps, transparency, blur, and shadows. (-s disables notifications)\x1b[0m\n\n"
+	printf "    volume      [inc|dec|mute]\n"
+	printf "      \x1b[38;2;150;150;150mChanges audio volume using pactl by 2 procent or mutes it using [mute] function.\x1b[0m\n\n"
+	printf "    screenshot  [full|select]\n"
+	printf "      \x1b[38;2;150;150;150mCreates a screenshot and copies to clipboard. [full] for full screen, [select] for selection only.\x1b[0m\n\n"
+	printf "    wallpaper\n"
+	printf "      \x1b[38;2;150;150;150mSwitches to a new (random) wallpaper from the ~/Pictures/wallpapers folder.\x1b[0m\n\n"
+	printf "    help\n"
+	printf "      \x1b[38;2;150;150;150mDisplays this information and exits.\n\n"
 	exit 0
 }
 
@@ -206,7 +221,6 @@ screenshot() {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
 			notification+=("Copied to clipboard.")
-			exit 0
 		fi
 	}
 			
@@ -214,7 +228,6 @@ screenshot() {
 		if grim "$filename"; then
 			wl-copy < "$filename"
 			notification+=("Copied to clipboard.")
-			exit 0
 		fi
 	}
 
