@@ -1,12 +1,3 @@
-//     ___      ___
-//    |"  \    /"  |
-//     \   \  //   |
-//     /\   \/.    |
-//    |: \.        |
-//    |.  \    /:  |
-//    |___|\__/|___|
-//
-
 {
     "layer": "top",
     "position": "top",
@@ -77,7 +68,7 @@
         "drawer": {
             "transition-duration": 300,
             "children-class": "drawer-child",
-            "transition-left-to-right": false,
+            "transition-left-to-right": false
         },
         "modules": [
             "custom/power",
@@ -106,34 +97,34 @@
 
     "custom/clock": {
         "return-type": "json",
-        "exec": "wbmodules --clock",
+        "exec": "~/dotfiles/waybar/modules/clock.sh",
         "format": "{}",
         "interval": 1,
-        "tooltip": false,
+        "tooltip": true,
         "format-icons": [""]
     },
 
 	"custom/cpu": {
         "return-type": "json",
-		"exec": "wbmodules --cpu",
+		"exec": "~/dotfiles/waybar/modules/cpu.sh",
         "format": "{} {icon}",
-		"interval": 4,
+		"interval": 2,
 		"tooltip": true,
         "format-icons": [""]
 	},
 	
 	"custom/memory": {
         "return-type": "json",
-        "exec": "wbmodules --ram",
+        "exec": "~/dotfiles/waybar/modules/ram.sh",
         "format": "{} {icon}",
-        "interval": 4,
+        "interval": 2,
         "tooltip": true,
         "format-icons": [" "]
     },
 
     "custom/weather": {
         "return-type": "json",
-        "exec": "wbmodules --weather",
+        "exec": "~/dotfiles/waybar/modules/weather.sh",
         "format": "{} {icon}",
         "interval": 240,
         "tooltip": true,
@@ -147,7 +138,7 @@
 
     "custom/toggles": {
         "return-type": "json",
-        "exec": "wbmodules --toggles",
+        "exec": "~/dotfiles/waybar/modules/toggles.sh",
         "format": "{}",
         "interval": 1,
         "tooltip": true
@@ -155,7 +146,7 @@
 
     "custom/network": {
         "return-type": "json",
-        "exec": "wbmodules --network",
+        "exec": "~/dotfiles/waybar/modules/network.sh",
         "format": "{} {icon}",
         "interval": 120,
         "tooltip": true,
@@ -170,13 +161,11 @@
     },
 
     "tray": {
-        // "icon-size": 21,
         "spacing": 10,
         "tooltip": false
     },
 
     "network": {
-        // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "{essid} ({signalStrength}%) ",
         "format-ethernet": "{ipaddr} ",
         "tooltip-format": "  {ifname} via {gwaddr}",
@@ -205,5 +194,5 @@
         },
         "on-click": "pavucontrol",
         "tooltip": false
-    },
+    }
 }

@@ -1,35 +1,35 @@
 {
-	"hyprland": {
-		"general": {
-			"gaps_in": 3,
-			"gaps_out": 6
-		},
-		"decoration": {
-			"drop_shadow": true,
-			"active_opacity": 0.92,
-			"inactive_opacity": 0.70,
-			"fullscreen_opacity": 0.92,
-			"rounding": 4,
-			"blur": {
-				"enabled": true
-			}
-		}
-	},
-	
-	"swayidle": {
-		"timeout": 360,
-		"actions": {
-			"idle": "hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1",
-			"resume": "hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2"
-		}
-	},
-	
-	"gammastep": {
-		"temp_day": 6500,
-		"temp_night": 5000
-	},
-
-	"fetch": {
-		"colors": "ffadad ffd6a5 fdffb6 caffbf 9bf6ff bdb2ff"
-	}
+  "wallpaper": "s3zb2meu66vb1.png",
+  "hyprland": {
+    "general": {
+      "gaps_in": 3,
+      "gaps_out": 6
+    },
+    "decoration": {
+      "active_opacity": 0.92,
+      "inactive_opacity": 0.70,
+      "fullscreen_opacity": 0.92,
+      "drop_shadow": true,
+      "rounding": "6px",
+      "blur": {
+        "enabled": true
+      }
+    }
+  },
+  "swayidle": {
+    "timeout": 360,
+    "on_idle": "hyprctl dispatch DP-2 dpms off; hyprctl dispatch DP-1 dpms off;",
+    "on_resume": "hyprctl dispatch DP-1 dpms on; hyprctl dispatch DP-2 dpms on;"
+  },
+  "gammastep": {
+    "temp_day": 6500,
+    "temp_night": 5000
+  },
+  "fetch": {
+    "colors": "ffadad ffd6a5 fdffb6 caffbf 9bf6ff bdb2ff"
+  },
+  "toggles": {
+    "gamemode": true,
+    "gammastep": false
+  }
 }

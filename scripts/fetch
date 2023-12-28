@@ -1,11 +1,21 @@
 #!/bin/bash
+#    ___      ___
+#   |"  \    /"  | ⊏
+#    \   \  //   | ⊓
+#    /\   \/.    | ⊐
+#   |: \.        | ⊔
+#   |.  \    /:  | ⊏
+#   |___|\__/|___| ⊓
+#
 
-hex_rgb() {
+hex_rgb () {
+	[ $# -lt 1 ] && exit 1
+	[[ ! "$1" =~ ^[0-9A-Za-Z]{6}$ ]] && exit 1
 	hex="$1"
 	printf "%d %d %d\n" "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
 }
 
-print_fetch_default() {
+print_fetch () {
 
 	local globalConf=~/dotfiles/global.json
 	local arrHex i rgb s c r uptime ram
@@ -14,7 +24,7 @@ print_fetch_default() {
 
 	for (( i=0; i<${#arrHex[@]}; i++ )); do
 		rgb=$(hex_rgb "${arrHex[i]}" | sed -e 's/ /;/g')
-		printf -v s "%s%sm" "\x1b[38;2;" "$rgb"
+		printf -v s "\x1b[38;2;%sm" "$rgb"
 		c+=("$s")
 	done
 
@@ -60,4 +70,4 @@ print_fetch_default() {
 	p
 }
 
-print_fetch_default "$@"
+print_fetch "$@"

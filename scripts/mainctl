@@ -7,58 +7,58 @@
 #   |.  \    /:  | ⊏
 #   |___|\__/|___| ⊓
 #
-# shellcheck disable=SC1091
 
 CONF_GLOBAL="$HOME/dotfiles/global.json"
 CONF_PRIVATE="$HOME/dotfiles/private.json"
 
 usage() {
 	printf "\n  Usage:   mainctl [module] [function] (opts)\n\n"
-	printf "    gamma       [start|stop|toggle]    (-s)\n"
-	printf "      \x1b[38;2;150;150;150mProvides a blue light filter or \"night light\". (-s disables notifications)\x1b[0m\n\n"
-	printf "    idle        [start|stop|toggle]    (-s)\n"
-	printf "      \x1b[38;2;150;150;150mProvides a way to disable displays when the user is idle. (-s disables notifications)\x1b[0m\n\n"
-	printf "    gamemode    [start|stop|toggle]    (-s)\n"
-	printf "      \x1b[38;2;150;150;150mDisables gaps, transparency, blur, and shadows. (-s disables notifications)\x1b[0m\n\n"
-	printf "    volume      [inc|dec|mute]\n"
-	printf "      \x1b[38;2;150;150;150mChanges audio volume using pactl by 2 procent or mutes it using [mute] function.\x1b[0m\n\n"
-	printf "    screenshot  [full|select]\n"
-	printf "      \x1b[38;2;150;150;150mCreates a screenshot and copies to clipboard. [full] for full screen, [select] for selection only.\x1b[0m\n\n"
-	printf "    wallpaper\n"
-	printf "      \x1b[38;2;150;150;150mSwitches to a new (random) wallpaper from the ~/Pictures/wallpapers folder.\x1b[0m\n\n"
-	printf "    help\n"
-	printf "      \x1b[38;2;150;150;150mDisplays this information and exits.\n\n"
+	printf "  gamma       [start|stop|toggle]    (-s)\n"
+	printf "    \x1b[38;2;150;150;150mBlue light filter / \"night light\". (-s disables notifications)\x1b[0m\n\n"
+	printf "  idle        [start|stop|toggle]    (-s)\n"
+	printf "    \x1b[38;2;150;150;150mDisable displays when the user is idle. (-s disables notifications)\x1b[0m\n\n"
+	printf "  gamemode    [start|stop|toggle]    (-s)\n"
+	printf "    \x1b[38;2;150;150;150mDisable gaps, transparency, blur, and shadows. (-s disables notifications)\x1b[0m\n\n"
+	printf "  volume      [inc|dec|mute]\n"
+	printf "    \x1b[38;2;150;150;150mChange audio volume using pactl by 2 procent or mutes it using [mute] function.\x1b[0m\n\n"
+	printf "  screenshot  [full|select]\n"
+	printf "    \x1b[38;2;150;150;150mCreate screenshot and copies to clipboard. [full] for full screen, [select] for selection only.\x1b[0m\n\n"
+	printf "  wallpaper\n"
+	printf "    \x1b[38;2;150;150;150mSwitch to new (random) wallpaper from the ~/Pictures/wallpapers folder.\x1b[0m\n\n"
+	printf "  help\n"
+	printf "    \x1b[38;2;150;150;150mDisplays this information and exits.\n\n"
 	exit 0
 }
 
 
-notify() {
+notify () {
 	notify-send "$1" "$2"
 }
 
 
-gamma() {
-	local lock_file toggle_file notification
+gamma () {
+	local lockfile notification cmd
 
-	lock_file="/tmp/gamma.lock"
-	[ -f "$lock_file" ] && exit 1
+	lockfile="/tmp/gamma.lock"
+	[ -f "$lockfile" ] && exit 0
 
-	toggle_file="/tmp/gamma.toggle"
 	notification=("Gammastep")
 
-	_start() {
-		pidof gammastep >/dev/null && exit 1
-		touch "$lock_file"
-		launch gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")" 
-		touch "$toggle_file"
+	_start () {
+		pidof gammastep >/dev/null && exit 0
+		touch "$lockfile"
+		run gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")" 
+		cp -f "$CONF_GLOBAL" "$lockfile"
+		jq '.toggles.gammastep = true' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gammastep enabled.")
 	}
 
-	_stop() {
-		pidof gammastep >/dev/null || exit 1
-		touch "$lock_file"
+	_stop () {
+		pidof gammastep >/dev/null || exit 0
+		touch "$lockfile"
 		killall gammastep
-		rm "$toggle_file"
+		cp -f "$CONF_GLOBAL" "$lockfile"
+		jq '.toggles.gammastep = false' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gammastep disabled.")
 	}
 
@@ -70,16 +70,16 @@ gamma() {
 
 	[[ "$*" =~ "-s" ]] || notify "${notification[@]}"
 	sleep 3
-	rm "$lock_file"
+	rm "$lockfile"
 }
 
 
-idle() {
-	local timeout notification
+idle () {
+	local timeout notification on_idle on_resume cmd
 	notification=("Swayidle")
 
-	_start() {
-		pidof swayidle >/dev/null && exit 1
+	_start () {
+		pidof swayidle >/dev/null && exit 0
 		timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
 		on_idle=$(jq '.swayidle.actions.idle' "$CONF_GLOBAL")
 		on_resume=$(jq '.swayidle.actions.resume' "$CONF_GLOBAL")
@@ -87,8 +87,8 @@ idle() {
 		notification+=("Swayidle enabled.")
 	}
 
-	_stop() {
-		pidof swayidle >/dev/null || exit 1
+	_stop () {
+		pidof swayidle >/dev/null || exit 0
 		killall swayidle
 		notification+=("Swayidle disabled.")
 	}
@@ -106,19 +106,18 @@ idle() {
 }
 
 
-gamemode() {
-	local lock_file toggle_file notification
+gamemode () { # there has to be a cleaner way to do this, will look into it later
+	local lockfile notification cmd
 
-	lock_file="/tmp/gamemode.lock"
-	[ -f "$lock_file" ] && exit 1
+	lockfile="/tmp/gamemode.lock"
+	[ -f "$lockfile" ] && exit 0
 
-	toggle_file="/tmp/gamemode.toggle"
 	notification=("Gamemode")
 
-	_start() {
-		[ -f "$toggle_file" ] && exit 1
-		touch "$lock_file"
-		launch hyprctl --batch "\
+	_start () {
+		[[ $(jq -r ".toggles.gamemode" "$CONF_GLOBAL") = true ]] && exit 0
+		touch "$lockfile"
+		run hyprctl --batch "\
 			keyword decoration:active_opacity 1;\
 			keyword decoration:inactive_opacity 1;\
 			keyword decoration:fullscreen_opacity 1;\
@@ -129,13 +128,14 @@ gamemode() {
 			keyword general:gaps_out 0"
 		mainctl gamma stop -s
 		mainctl idle stop -s
-		touch "$toggle_file"
+		cp -f "$CONF_GLOBAL" "$lockfile"
+		jq '.toggles.gamemode = true' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gamemode enabled.")
 	}
 
-	_stop() {
-		[ -f "$toggle_file" ] || exit 1
-		touch "$lock_file"
+	_stop () {
+		[[ $(jq -r ".toggles.gamemode" "$CONF_GLOBAL") = true ]] || exit 0
+		touch "$lockfile"
 		local active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur c
 		
 		c=$(jq '.hyprland.decoration' "$CONF_GLOBAL")
@@ -150,7 +150,7 @@ gamemode() {
 		gaps_in=$(jq "$c.gaps_in" "$CONF_GLOBAL")
 		gaps_out=$(jq "$c.gaps_out" "$CONF_GLOBAL")
 
-		launch hyprctl --batch "\
+		run hyprctl --batch "\
 			keyword decoration:active_opacity $active_opacity;\
 			keyword decoration:inactive_opacity $inactive_opacity;\
 			keyword decoration:fullscreen_opacity $fullscreen_opacity;\
@@ -160,7 +160,8 @@ gamemode() {
 			keyword general:gaps_in $gaps_in;\
 			keyword general:gaps_out $gaps_out"
 		mainctl idle start -s
-		rm "$toggle_file"
+		cp -f "$CONF_GLOBAL" "$lockfile"
+		jq '.toggles.gamemode = false' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gamemode disabled.")
 	}
 
@@ -168,34 +169,85 @@ gamemode() {
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") if [ -f "$toggle_file" ]; then _stop; else _start; fi ;;
+			"toggle")
+				if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then
+					_stop
+				else
+					_start
+				fi ;;
 			*) usage ;;
 		esac
 	done
 
 	[[ "$*" =~ '-s' ]] || notify "${notification[@]}"
 	sleep 3
-	rm "$lock_file"
+	rm "$lockfile"
 }
 
 
-wallpaper() {
-	local wp_folder random_wallpaper filename
+wallpaper () {
+	local folder listfile current tmpfile num j cmd
 
-	wp_folder="$HOME/Pictures/wallpapers"
-	random_wallpaper=$(find "$wp_folder" -type f | shuf -n1)
-	filename=$(basename "$random_wallpaper")
+	folder="$HOME/Pictures/wallpapers"
+	listfile="$folder/.list"
+	ls -1 "$folder" > "$folder/.list"
+	current=$(jq -r '.hyprland.wallpaper' "$CONF_GLOBAL")
+	mapfile -t list < "$listfile"
 
-	cp "$wp_folder/$filename" "$wp_folder/.current/wallpaper.png"
+	_done () {
+		tmpfile=$(mktemp)
+		cp "$CONF_GLOBAL" "$tmpfile" &&
+		jq --arg new_file "$@" '.hyprland.wallpaper = $new_file' "$tmpfile" > "$CONF_GLOBAL"
+		cp -f "$folder/$*" "$folder/.wallpaper.png"
+		rm "$tmpfile"
+		hyprctl hyprpaper unload all && killall hyprpaper; run hyprpaper
+		exit 0
+	}
 
-	hyprctl hyprpaper unload all && \
-	killall hyprpaper && \
-	hyprpaper &
+	_next () {
+		num=${#list[@]}
+		j=$(( num-1 ))
+		for ((i=0;i<=j;i++)); do
+			if [ "${list[i]}" = "$current" ]; then
+				if [ $i -eq $j ]; then
+					i=0
+				else
+					(( i++ ))
+				fi
+				_done "${list[i]}"
+			fi
+		done
+	}
+
+	_prev () {
+		num=${#list[@]}
+		j=$(( num-1 ))
+		for ((i=j;i>=0;i--)); do
+			if [ "${list[i]}" = "$current" ]; then
+				if [ $i -eq 0 ]; then
+					i=$j
+				else
+					(( i-- ))
+				fi
+				_done "${list[i]}"
+			fi
+		done
+	}
+
+	for cmd in "$@"; do
+		case "$cmd" in
+			"next") _next ;;
+			"prev") _prev ;;
+			*) usage ;;
+		esac
+	done	
+
+	
 }
 
 
-volume() {
-	local current_volume
+volume () {
+	local current_volume cmd
 
 	current_volume=$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)
 
@@ -210,21 +262,21 @@ volume() {
 }
 
 
-screenshot() {
-	local savedir filename notification
+screenshot () {
+	local savedir filename notification cmd
 
 	savedir=/tmp
 	filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
 	notification=("Screenshot")
 	 
-	_selection() {
+	_selection () {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
 			notification+=("Copied to clipboard.")
 		fi
 	}
 			
-	_fullscreen() { 
+	_fullscreen () { 
 		if grim "$filename"; then
 			wl-copy < "$filename"
 			notification+=("Copied to clipboard.")
@@ -243,25 +295,34 @@ screenshot() {
 }
 
 
-waybarctl() {
-	case "$1" in
-		"reset")
-			if pidof "waybar"; then
-				killall waybar
-				sleep 0.2s
-			fi
-			launch waybar
-			;;
-		*) exit 1 ;;
-	esac
+bar () {
+	local notification cmd
+	
+	notification=("Waybar")
+
+	_start () {
+		pidof waybar >/dev/null || run waybar
+	}
+
+	_stop () {
+		pidof waybar >/dev/null && run killall waybar
+	}
+
+	for cmd in "$@"; do
+		case "$cmd" in
+			"start") _start ;;
+			"stop") _stop ;;
+			"toggle") if pidof waybar >/dev/null; then _stop; else _start; fi ;;
+			"reload") _stop; sleep 0.7; _start; notification+=("Configuration reloaded.") ;;
+			*) usage ;;
+		esac
+	done
+
+	[ ${#notification[@]} -gt 1 ] && notify "${notification[@]}"
 }
 
-
-main() {
-	if [[ $# -lt 2 ]]; then
-		echo "Invalid number of arguments"
-		exit 1
-	fi
+main () {
+	[ $# -lt 1 ] && usage
 
 	args=("${@:2}")
 
@@ -272,8 +333,8 @@ main() {
 		"wallpaper") wallpaper "${args[@]}" ;;
 		"volume") volume "${args[@]}" ;;
 		"screenshot") screenshot "${args[@]}" ;;
-		"waybar") waybarctl "${args[@]}" ;;
-		"help"|"-h"|*) usage ;;
+		"waybar") bar "${args[@]}" ;;
+		"help"|"-h"|""|*) usage ;;
 	esac
 }
 

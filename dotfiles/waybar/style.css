@@ -6,9 +6,9 @@
 	|: \.        | ⊔
 	|.  \    /:  | ⊏
 	|___|\__/|___| ⊓
-
 */
 
+@import url("colors.css");
 
 * {
 	all: unset;
@@ -16,28 +16,30 @@
 	font-size: 10pt;
 }
 
+window#waybar {
+	background: @bar-bg;
+}
+
 .modules-left {
-	margin-left: 4px;
+	padding-left: 4px;
 }
 
 .modules-right {
-	margin-right: 8px;
-}
-
-.modules-right widget label {
-	padding: 6px 20px;
-	color: #b1b1b1;
+	padding-right: 8px;
 }
 
 .modules-left, .modules-center, .modules-right {
-	margin-top: 4px;
-	margin-bottom: 4px;
-	text-shadow: 1px 1px 1px #000;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+	padding-top: 2px; padding-bottom: 4px;
+}
+
+.modules-right widget label {
+	padding: 5px 20px;
+	color: @txt-default;
 }
 
 #workspaces button {
-	color: #c1c1c1;
-	background: linear-gradient(166deg, rgba(255,255,255,0), rgba(255,255,255,0));
+	color: @txt-default;
 	text-shadow: 0 0 5px rgba(0,0,0,0.2);
 	padding: 0 20px;
 	transition-property: background, color, padding, text-shadow;
@@ -47,25 +49,25 @@
 
 #workspaces button.active {
 	padding: 0 50px;
-	color: #f1f1f1;
+	color: @txt-highlight;
 	text-shadow: 0 0 7px rgba(255,255,255,0.6);
 	background: rgba(255,255,255,0.05);
 }
 
 #workspaces button:hover {
-	color: #f1f1f1;
+	color: @txt-highlight;
 	text-shadow: 0 0 7px rgba(255,255,255,1);
 }
 
 #window {
 	margin: -2px 0 0 0;
-	color: #b1b1b1;
+	color: @txt-default;
 }
 
 #custom-separator {
 	padding: 0;
-	font-size: 0.1px;
-	background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+	font-size: 0;
+	background: linear-gradient(180deg, rgba(0,0,0,0), rgba(255,255,255,0.2) 35%, rgba(255,255,255,0.2) 65%, rgba(0,0,0,0));
 }
 
 #custom-memory, #custom-cpu, #custom-weather {
@@ -79,6 +81,5 @@ tooltip {
 
 tooltip label {
 	padding: 8px 16px;
-	text-shadow: 0 0 2px rgba(0,0,0,15);
-	color: #999999;
+	color: @txt-tooltip;
 }
