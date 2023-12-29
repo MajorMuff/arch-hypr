@@ -18,8 +18,10 @@
   },
   "swayidle": {
     "timeout": 360,
-    "on_idle": "hyprctl dispatch DP-2 dpms off; hyprctl dispatch DP-1 dpms off;",
-    "on_resume": "hyprctl dispatch DP-1 dpms on; hyprctl dispatch DP-2 dpms on;"
+    "actions": {
+      "idle": "hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1;",
+      "resume": "hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2;"
+    }
   },
   "gammastep": {
     "temp_day": 6500,

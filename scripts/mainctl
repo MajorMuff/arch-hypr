@@ -81,8 +81,8 @@ idle () {
 	_start () {
 		pidof swayidle >/dev/null && exit 0
 		timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
-		on_idle=$(jq '.swayidle.actions.idle' "$CONF_GLOBAL")
-		on_resume=$(jq '.swayidle.actions.resume' "$CONF_GLOBAL")
+		on_idle=$(jq -r '.swayidle.actions.idle' "$CONF_GLOBAL")
+		on_resume=$(jq -r '.swayidle.actions.resume' "$CONF_GLOBAL")
 		swayidle timeout "$timeout" "$on_idle" resume "$on_resume" &
 		notification+=("Swayidle enabled.")
 	}
@@ -115,7 +115,6 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 	notification=("Gamemode")
 
 	_start () {
-		[[ $(jq -r ".toggles.gamemode" "$CONF_GLOBAL") = true ]] && exit 0
 		touch "$lockfile"
 		run hyprctl --batch "\
 			keyword decoration:active_opacity 1;\
@@ -130,11 +129,12 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 		mainctl idle stop -s
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gamemode = true' "$lockfile" > "$CONF_GLOBAL"
+		sleep 3
+		rm "$lockfile"
 		notification+=("Gamemode enabled.")
 	}
 
 	_stop () {
-		[[ $(jq -r ".toggles.gamemode" "$CONF_GLOBAL") = true ]] || exit 0
 		touch "$lockfile"
 		local active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur c
 		
@@ -162,6 +162,8 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 		mainctl idle start -s
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gamemode = false' "$lockfile" > "$CONF_GLOBAL"
+		sleep 3
+		rm "$lockfile"
 		notification+=("Gamemode disabled.")
 	}
 
@@ -180,8 +182,6 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 	done
 
 	[[ "$*" =~ '-s' ]] || notify "${notification[@]}"
-	sleep 3
-	rm "$lockfile"
 }
 
 
@@ -321,6 +321,13 @@ bar () {
 	[ ${#notification[@]} -gt 1 ] && notify "${notification[@]}"
 }
 
+
+boot() {
+	[ "$(jq -r '.toggles.gamemode' "$CONF_GLOBAL")" = true ] && mainctl gamemode start -s
+	[ "$(jq -r '.toggles.gammastep' "$CONF_GLOBAL")" = true ] && mainctl gamma start -s
+}
+
+
 main () {
 	[ $# -lt 1 ] && usage
 
@@ -334,6 +341,7 @@ main () {
 		"volume") volume "${args[@]}" ;;
 		"screenshot") screenshot "${args[@]}" ;;
 		"waybar") bar "${args[@]}" ;;
+		"boot") boot ;;
 		"help"|"-h"|""|*) usage ;;
 	esac
 }
