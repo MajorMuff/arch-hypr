@@ -1,4 +1,4 @@
-alias ls='ls --color=auto --group-directories-first'
+alias ls='ls -h --color=auto --group-directories-first'
 alias ll='ls -l'
 alias la='ls -a'
 alias lla='ls -la'

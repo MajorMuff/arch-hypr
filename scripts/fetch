@@ -12,7 +12,7 @@ hex_rgb () {
 	[ $# -lt 1 ] && exit 1
 	[[ ! "$1" =~ ^[0-9A-Za-Z]{6}$ ]] && exit 1
 	hex="$1"
-	printf "%d %d %d\n" "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
+	printf "%d;%d;%d\n" "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
 }
 
 print_fetch () {
@@ -23,7 +23,7 @@ print_fetch () {
 	read -ra arrHex <<< "$(jq -r '.fetch.colors' $globalConf)"
 
 	for (( i=0; i<${#arrHex[@]}; i++ )); do
-		rgb=$(hex_rgb "${arrHex[i]}" | sed -e 's/ /;/g')
+		rgb=$(hex_rgb "${arrHex[i]}")
 		printf -v s "\x1b[38;2;%sm" "$rgb"
 		c+=("$s")
 	done

@@ -4,6 +4,6 @@ gitDir=/home/coen/github
 dotsDir=/home/coen/dotfiles
 scriptDir=/home/coen/scripts
 
-cp "$HOME/.bashrc" "$HOME/.bash_aliases" "$gitDir" 
+cp "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.bash_aliases" "$gitDir" 
 if ! rsync -aLK --delete "$dotsDir" "$gitDir"; then echo "Failed to sync dotfiles!"; fi
 if ! rsync -aLK --delete "$scriptDir" "$gitDir"; then echo "Failed to sync scripts!"; fi

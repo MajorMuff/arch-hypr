@@ -131,7 +131,7 @@
         "format-icons": {
             "rain": "",
             "clouds": " ",
-            "clear": "",
+            "clear_day": "",
             "clear_night": ""
         }
     },

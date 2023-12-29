@@ -63,9 +63,11 @@ gamma () {
 	}
 
 	for cmd in "$@"; do
-		[ "$cmd" = "start" ] && _start
-		[ "$cmd" = "stop" ] && _stop
-		[ "$cmd" = "toggle" ] && if pidof gammastep >/dev/null; then _stop; else _start; fi
+		case "$cmd" in
+			"start") _start ;;
+			"stop") _stop ;;
+			"toggle") if pidof gammastep >/dev/null; then _stop; else _start; fi ;;
+		esac
 	done
 
 	[[ "$*" =~ "-s" ]] || notify "${notification[@]}"
@@ -98,7 +100,6 @@ idle () {
 			"start") _start ;;
 			"stop") _stop ;;
 			"toggle") if pidof swayidle >/dev/null; then _stop; else _start; fi ;;
-			*) usage ;;
 		esac
 	done
 
@@ -106,7 +107,7 @@ idle () {
 }
 
 
-gamemode () { # there has to be a cleaner way to do this, will look into it later
+gamemode () {
 	local lockfile notification cmd
 
 	lockfile="/tmp/gamemode.lock"
@@ -116,21 +117,21 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 
 	_start () {
 		touch "$lockfile"
-		run hyprctl --batch "\
-			keyword decoration:active_opacity 1;\
-			keyword decoration:inactive_opacity 1;\
-			keyword decoration:fullscreen_opacity 1;\
-			keyword decoration:drop_shadow false;\
-			keyword decoration:rounding 0;\
-			keyword decoration:blur:enabled false;\
-			keyword general:gaps_in 0;\
-			keyword general:gaps_out 0"
+		actions=(
+			"keyword decoration:active_opacity 1;"
+			"keyword decoration:inactive_opacity 1;"
+			"keyword decoration:fullscreen_opacity 1;"
+			"keyword decoration:drop_shadow false;"
+			"keyword decoration:rounding 0;"
+			"keyword decoration:blur:enabled false;"
+			"keyword general:gaps_in 0;"
+			"keyword general:gaps_out 0"
+		)
+		run hyprctl --batch "${actions[@]}"
 		mainctl gamma stop -s
 		mainctl idle stop -s
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gamemode = true' "$lockfile" > "$CONF_GLOBAL"
-		sleep 3
-		rm "$lockfile"
 		notification+=("Gamemode enabled.")
 	}
 
@@ -145,25 +146,27 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 		drop_shadow=$(jq "$c.drop_shadow" "$CONF_GLOBAL")
 		rounding=$(jq "$c.rounding" "$CONF_GLOBAL")
 		blur=$(jq "$c.blur.enabled" "$CONF_GLOBAL")
+		actions=(
+			"keyword decoration:active_opacity $active_opacity;"
+			"keyword decoration:inactive_opacity $inactive_opacity;"
+			"keyword decoration:fullscreen_opacity $fullscreen_opacity;"
+			"keyword decoration:drop_shadow $drop_shadow;"
+			"keyword decoration:blur:enabled $blur;"
+			"keyword decoration:rounding $rounding;"
+		)
 
 		c=$(jq '.hyprland.general' "$CONF_GLOBAL")
 		gaps_in=$(jq "$c.gaps_in" "$CONF_GLOBAL")
 		gaps_out=$(jq "$c.gaps_out" "$CONF_GLOBAL")
+		actions+=(
+			"keyword general:gaps_in $gaps_in;"
+			"keyword general:gaps_out $gaps_out"
+		)
 
-		run hyprctl --batch "\
-			keyword decoration:active_opacity $active_opacity;\
-			keyword decoration:inactive_opacity $inactive_opacity;\
-			keyword decoration:fullscreen_opacity $fullscreen_opacity;\
-			keyword decoration:drop_shadow $drop_shadow;\
-			keyword decoration:blur:enabled $blur;\
-			keyword decoration:rounding $rounding;\
-			keyword general:gaps_in $gaps_in;\
-			keyword general:gaps_out $gaps_out"
+		run hyprctl --batch "${actions[@]}"
 		mainctl idle start -s
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gamemode = false' "$lockfile" > "$CONF_GLOBAL"
-		sleep 3
-		rm "$lockfile"
 		notification+=("Gamemode disabled.")
 	}
 
@@ -172,15 +175,13 @@ gamemode () { # there has to be a cleaner way to do this, will look into it late
 			"start") _start ;;
 			"stop") _stop ;;
 			"toggle")
-				if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then
-					_stop
-				else
-					_start
+				if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then _stop
+				else _start
 				fi ;;
-			*) usage ;;
 		esac
 	done
 
+	rm "$lockfile"
 	[[ "$*" =~ '-s' ]] || notify "${notification[@]}"
 }
 
@@ -238,7 +239,6 @@ wallpaper () {
 		case "$cmd" in
 			"next") _next ;;
 			"prev") _prev ;;
-			*) usage ;;
 		esac
 	done	
 
@@ -256,7 +256,6 @@ volume () {
 			"inc") [ "$current_volume" -lt 100 ] && pactl -- set-sink-volume 0 +2% ;;
 			"dec") [ "$current_volume" -gt 0 ] && pactl -- set-sink-volume 0 -2% ;;
 			"mute") pactl -- set-sink-mute 0 toggle ;;
-			*) usage ;;
 		esac
 	done
 }
@@ -287,7 +286,6 @@ screenshot () {
 		case "$cmd" in
 			"select") _selection ;;
 			"full") _fullscreen ;;
-			*) usage ;;
 		esac
 	done
 
@@ -314,7 +312,6 @@ bar () {
 			"stop") _stop ;;
 			"toggle") if pidof waybar >/dev/null; then _stop; else _start; fi ;;
 			"reload") _stop; sleep 0.7; _start; notification+=("Configuration reloaded.") ;;
-			*) usage ;;
 		esac
 	done
 
@@ -342,7 +339,7 @@ main () {
 		"screenshot") screenshot "${args[@]}" ;;
 		"waybar") bar "${args[@]}" ;;
 		"boot") boot ;;
-		"help"|"-h"|""|*) usage ;;
+		"help"|"-h") usage ;;
 	esac
 }
 
