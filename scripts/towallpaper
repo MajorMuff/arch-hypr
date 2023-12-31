@@ -9,14 +9,12 @@
 #
 
 do_convert () {
-
-	local filename tmp newWidth newHeight
+	local filename tmp new_width new_height
 	
 	filename=$(basename -- "$1")
 	tmp=$(mktemp)
-	tmp2=$(mktemp)
 
-	if [[ ! $(file -b "$filename" | cut -d' ' -f1 ) = "PNG" ]]; then
+	if [[ $(file -b "$filename" | cut -d' ' -f1 ) != "PNG" ]]; then
 		newfile="${filename%.*}.png"
 		magick "$filename" "$newfile"
 		filename="$newfile"
@@ -34,17 +32,16 @@ do_convert () {
 		fi
 	fi
 
-	newWidth=$(identify -ping -format '%w' "$tmp")
-	newHeight=$(identify -ping -format '%h' "$tmp")
+	new_width=$(identify -ping -format '%w' "$tmp")
+	new_height=$(identify -ping -format '%h' "$tmp")
 	
-	if [[ "$newWidth" -gt 2560 ]] || [[ "$newHeight" -gt 1440 ]]; then
+	if (( new_width > 2560 || new_height > 1440 )); then
 
-		# crop if width or height is too large after resize operation
-		cp "$tmp" "$tmp2"
-		magick "$tmp2" -gravity center -crop 2560x1440+0+0 "$tmp"
+		magick "$tmp" -gravity center -crop 2560x1440+0+0 "$tmp"
 	fi
 
 	cp "$tmp" "$HOME/Pictures/wallpapers/$filename"
+	rm -f "$tmp"
 }
 
 do_convert "$@"

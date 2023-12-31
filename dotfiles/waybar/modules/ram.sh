@@ -1,25 +1,23 @@
 #!/bin/bash
-#    ___      ___
-#   |"  \    /"  | ⊏
-#    \   \  //   | ⊓
-#    /\   \/.    | ⊐
-#   |: \.        | ⊔
-#   |.  \    /:  | ⊏
-#   |___|\__/|___| ⊓
-#
 
-procfile=/proc/meminfo
-available=$(awk '/MemAvailable/ { print $2 }' "$procfile")
-total=$(awk '/MemTotal/ { print $2 }' "$procfile")
-usage=$(bc -l <<< "100 - (($available/$total)*100)")
+wb_ram () {
+    local raw total used perc
 
-printf -v text "%.1f%%" "$usage"
+    raw=$(free -t --mega | tail -1)
+    total=$(awk '{print $2}' <<< "$raw")
+    used=$(awk '{print $3}' <<< "$raw")
+    perc=$(bc -l <<< "100/$total*$used")
 
-printf -v tooltip "Usage : %'.0f MB / %'.0f MB" \
-    "$(bc -l <<< "($total - $available)/1024")" \
-    "$(bc -l <<< "$total/1024")"
+    (( $(printf "%'.0f" "$perc") > 85 )) && local class="warning"
+
+    printf -v text "%.1f%%" "$perc"
+    printf -v tooltip "Usage : %'.0f MB / %'.0f MB" "$used" "$total"
     
-jq -nc \
-    --arg text "$text" \
-    --arg tooltip "$(sed 's/,/./g' <<< "$tooltip")" \
-    '{ text: $text, tooltip: $tooltip }'
+    jq -nc \
+        --arg text "$text" \
+        --arg tooltip "${tooltip//,/.}" \
+        --arg class "$class" \
+        '{ text: $text, tooltip: $tooltip, class: $class }'
+}
+
+wb_ram

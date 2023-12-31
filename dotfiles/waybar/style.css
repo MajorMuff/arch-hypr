@@ -25,12 +25,12 @@ window#waybar {
 }
 
 .modules-right {
-	padding-right: 8px;
+	padding-right: 4px;
 }
 
 .modules-left, .modules-center, .modules-right {
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
-	padding-top: 2px; padding-bottom: 4px;
+	padding-top: 4px; padding-bottom: 4px;
 }
 
 .modules-right widget label {
@@ -75,11 +75,15 @@ window#waybar {
 }
 
 tooltip {
-	background: rgba(0,0,0,0.75);
-	border-radius: 9px;
+	background: rgba(0,0,0,0.7);
+	border-radius: 4px;
 }
 
 tooltip label {
 	padding: 8px 16px;
 	color: @txt-tooltip;
+}
+
+.modules-right .warning {
+    color: #d55;
 }

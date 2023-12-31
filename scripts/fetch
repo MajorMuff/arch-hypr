@@ -9,21 +9,19 @@
 #
 
 hex_rgb () {
-	[ $# -lt 1 ] && exit 1
-	[[ ! "$1" =~ ^[0-9A-Za-Z]{6}$ ]] && exit 1
+	[[ $# -lt 1 || ! "$1" =~ ^[0-9A-Za-Z]{6}$ ]] && exit 1
 	hex="$1"
 	printf "%d;%d;%d\n" "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
 }
 
 print_fetch () {
+	local global_conf=~/dotfiles/global.json
+	local arr_hex rgb s c r uptime ram
 
-	local globalConf=~/dotfiles/global.json
-	local arrHex i rgb s c r uptime ram
+	read -ra arr_hex <<< "$(jq -r '.fetch.colors' $global_conf)"
 
-	read -ra arrHex <<< "$(jq -r '.fetch.colors' $globalConf)"
-
-	for (( i=0; i<${#arrHex[@]}; i++ )); do
-		rgb=$(hex_rgb "${arrHex[i]}")
+	for hex in "${arr_hex[@]}"; do
+		rgb=$(hex_rgb "$hex")
 		printf -v s "\x1b[38;2;%sm" "$rgb"
 		c+=("$s")
 	done
@@ -31,11 +29,11 @@ print_fetch () {
 	r="\x1b[0m"
 
 	p () {
-
+		local e
 		if [ $# -eq 0 ]; then
 			printf "\n"
 		else
-			if ! [ -v "${c[0]}" ]; then
+			if [ -n "${c[0]}" ]; then
 				e=${c[$1]}
 			fi
 			printf "$e%s$r\n" "$2"
@@ -57,6 +55,7 @@ print_fetch () {
 		p 5 "   |___|\__/|___| ⊓"
 		p
 	fi
+	
 	if ! [[ $* == *-l* ]]; then
 		p 0 "   user         $USER"
 		p 1 "   host         $HOSTNAME"

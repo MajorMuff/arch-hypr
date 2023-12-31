@@ -1,6 +1,5 @@
 {
   "hyprland": {
-    "wallpaper": "17ntgfe2zeqb1.png",
     "general": {
       "gaps_in": 3,
       "gaps_out": 6
@@ -14,13 +13,16 @@
       "blur": {
         "enabled": true
       }
+    },
+    "animations": {
+      "enabled": true
     }
   },
   "swayidle": {
-    "timeout": 360,
+    "timeout": 300,
     "actions": {
-      "idle": "hyprctl dispatch dpms off DP-2; hyprctl dispatch dpms off DP-1;",
-      "resume": "hyprctl dispatch dpms on DP-1; hyprctl dispatch dpms on DP-2;"
+      "idle": "hyprctl dispatch dpms off;",
+      "resume": "hyprctl dispatch dpms on;"
     }
   },
   "gammastep": {
@@ -33,5 +35,6 @@
   "toggles": {
     "gamemode": true,
     "gammastep": false
-  }
+  },
+  "wallpaper": "1kf4wq6tnd59c1.png"
 }

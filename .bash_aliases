@@ -10,4 +10,6 @@ alias ...='cd ../..'
 alias cd-='cd - >/dev/null'
 alias -- -='cd - >/dev/null'
 
+alias vs="code"
+
 alias shutdown='shutdown now'

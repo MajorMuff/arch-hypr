@@ -12,22 +12,40 @@ CONF_GLOBAL="$HOME/dotfiles/global.json"
 CONF_PRIVATE="$HOME/dotfiles/private.json"
 
 usage() {
-	printf "\n  Usage:   mainctl [module] [function] (opts)\n\n"
-	printf "  gamma       [start|stop|toggle]    (-s)\n"
-	printf "    \x1b[38;2;150;150;150mBlue light filter / \"night light\". (-s disables notifications)\x1b[0m\n\n"
-	printf "  idle        [start|stop|toggle]    (-s)\n"
-	printf "    \x1b[38;2;150;150;150mDisable displays when the user is idle. (-s disables notifications)\x1b[0m\n\n"
-	printf "  gamemode    [start|stop|toggle]    (-s)\n"
-	printf "    \x1b[38;2;150;150;150mDisable gaps, transparency, blur, and shadows. (-s disables notifications)\x1b[0m\n\n"
-	printf "  volume      [inc|dec|mute]\n"
-	printf "    \x1b[38;2;150;150;150mChange audio volume using pactl by 2 procent or mutes it using [mute] function.\x1b[0m\n\n"
-	printf "  screenshot  [full|select]\n"
-	printf "    \x1b[38;2;150;150;150mCreate screenshot and copies to clipboard. [full] for full screen, [select] for selection only.\x1b[0m\n\n"
-	printf "  wallpaper\n"
-	printf "    \x1b[38;2;150;150;150mSwitch to new (random) wallpaper from the ~/Pictures/wallpapers folder.\x1b[0m\n\n"
-	printf "  help\n"
-	printf "    \x1b[38;2;150;150;150mDisplays this information and exits.\n\n"
-	exit 0
+    printf "
+Usage:   mainctl [module] [function] (opts)
+
+  gamma       [start|stop|toggle] (-s)
+    \x1b[38;2;150;150;150mBlue light filter / \"night light\". (-s disables notifications)\x1b[0m
+
+  idle        [start|stop|toggle] (-s)
+    \x1b[38;2;150;150;150mDisable displays when the user is idle. (-s disables notifications)\x1b[0m
+
+  gamemode    [start|stop|toggle] (-s)
+    \x1b[38;2;150;150;150mDisable gaps, transparency, blur, and shadows. (-s disables notifications)\x1b[0m
+
+  volume      [inc|dec|mute]
+    \x1b[38;2;150;150;150mChange audio volume using pactl by 2 procent or mutes it using [mute] function.\x1b[0m
+
+  screenshot  [full|select] (-s)
+    \x1b[38;2;150;150;150mCreate screenshot and copies to clipboard. [full] for full screen, [select] for selection only. (-s disables notifications)\x1b[0m
+
+  wallpaper   [next|prev]
+    \x1b[38;2;150;150;150mSwitch wallpaper from the ~/Pictures/wallpapers folder. [next] for next file in list, [prev] for previous file in list.\x1b[0m
+
+  -h | help
+    \x1b[38;2;150;150;150mDisplays this information and exits.\x1b[0m
+
+  Examples:\x1b[38;2;150;150;150m
+    mainctl wallpaper next    - Switch wallpaper to next in list
+    mainctl waybar reload     - Reload waybar configuration and restart
+    mainctl gamma start       - Start gammastep service
+    mainctl gamemode toggle   - Toggle gamemode on or off depending on current state
+    mainctl volume inc        - Increase volume by 2%%
+    mainctl screenshot full   - Fullscreen screenshot, copy to clipboard\x1b[0m
+    
+"
+    exit 0
 }
 
 
@@ -35,19 +53,20 @@ notify () {
 	notify-send "$1" "$2"
 }
 
-
 gamma () {
 	local lockfile notification cmd
 
 	lockfile="/tmp/gamma.lock"
 	[ -f "$lockfile" ] && exit 0
 
+    touch "$lockfile"
+    trap 'rm -f $lockfile' EXIT
+    
 	notification=("Gammastep")
 
 	_start () {
 		pidof gammastep >/dev/null && exit 0
-		touch "$lockfile"
-		run gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")" 
+		gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gammastep = true' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gammastep enabled.")
@@ -55,24 +74,31 @@ gamma () {
 
 	_stop () {
 		pidof gammastep >/dev/null || exit 0
-		touch "$lockfile"
 		killall gammastep
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gammastep = false' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gammastep disabled.")
 	}
 
+	_toggle () {
+		if pidof gammastep >/dev/null; then
+			_stop
+		else
+			_start
+		fi
+	}
+
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") if pidof gammastep >/dev/null; then _stop; else _start; fi ;;
+			"toggle") _toggle ;;
 		esac
 	done
 
 	[[ "$*" =~ "-s" ]] || notify "${notification[@]}"
 	sleep 3
-	rm "$lockfile"
+	exit 0
 }
 
 
@@ -95,11 +121,19 @@ idle () {
 		notification+=("Swayidle disabled.")
 	}
 
+	_toggle () {
+		if pidof swayidle >/dev/null; then
+			_stop
+		else
+			_start
+		fi
+	}
+
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") if pidof swayidle >/dev/null; then _stop; else _start; fi ;;
+			"toggle") _toggle ;;
 		esac
 	done
 
@@ -113,11 +147,13 @@ gamemode () {
 	lockfile="/tmp/gamemode.lock"
 	[ -f "$lockfile" ] && exit 0
 
+    touch $lockfile
+    trap 'rm -f $lockfile' EXIT
+
 	notification=("Gamemode")
 
 	_start () {
-		touch "$lockfile"
-		actions=(
+		local actions=(
 			"keyword decoration:active_opacity 1;"
 			"keyword decoration:inactive_opacity 1;"
 			"keyword decoration:fullscreen_opacity 1;"
@@ -125,7 +161,7 @@ gamemode () {
 			"keyword decoration:rounding 0;"
 			"keyword decoration:blur:enabled false;"
 			"keyword general:gaps_in 0;"
-			"keyword general:gaps_out 0"
+			"keyword general:gaps_out 0;"
 		)
 		run hyprctl --batch "${actions[@]}"
 		mainctl gamma stop -s
@@ -136,8 +172,7 @@ gamemode () {
 	}
 
 	_stop () {
-		touch "$lockfile"
-		local active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur c
+		local c active_opacity inactive_opacity fullscreen_opacity gaps_in gaps_out drop_shadow rounding blur
 		
 		c=$(jq '.hyprland.decoration' "$CONF_GLOBAL")
 		active_opacity=$(jq "$c.active_opacity" "$CONF_GLOBAL")
@@ -146,7 +181,7 @@ gamemode () {
 		drop_shadow=$(jq "$c.drop_shadow" "$CONF_GLOBAL")
 		rounding=$(jq "$c.rounding" "$CONF_GLOBAL")
 		blur=$(jq "$c.blur.enabled" "$CONF_GLOBAL")
-		actions=(
+		local actions=(
 			"keyword decoration:active_opacity $active_opacity;"
 			"keyword decoration:inactive_opacity $inactive_opacity;"
 			"keyword decoration:fullscreen_opacity $fullscreen_opacity;"
@@ -160,7 +195,7 @@ gamemode () {
 		gaps_out=$(jq "$c.gaps_out" "$CONF_GLOBAL")
 		actions+=(
 			"keyword general:gaps_in $gaps_in;"
-			"keyword general:gaps_out $gaps_out"
+			"keyword general:gaps_out $gaps_out;"
 		)
 
 		run hyprctl --batch "${actions[@]}"
@@ -170,37 +205,45 @@ gamemode () {
 		notification+=("Gamemode disabled.")
 	}
 
+	_toggle () {
+		if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then
+			_stop
+		else
+			_start
+		fi
+	}
+
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle")
-				if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then _stop
-				else _start
-				fi ;;
+			"toggle") _toggle ;;
+				
 		esac
 	done
 
-	rm "$lockfile"
 	[[ "$*" =~ '-s' ]] || notify "${notification[@]}"
+    sleep 3
+    exit 0
 }
 
 
 wallpaper () {
 	local folder listfile current tmpfile num j cmd
 
+    tmpfile=$(mktemp)
+    trap 'rm -f $tmpfile' EXIT
+
 	folder="$HOME/Pictures/wallpapers"
 	listfile="$folder/.list"
 	ls -1 "$folder" > "$folder/.list"
-	current=$(jq -r '.hyprland.wallpaper' "$CONF_GLOBAL")
+	current=$(jq -r '.wallpaper' "$CONF_GLOBAL")
 	mapfile -t list < "$listfile"
 
 	_done () {
-		tmpfile=$(mktemp)
 		cp "$CONF_GLOBAL" "$tmpfile" &&
-		jq --arg new_file "$@" '.hyprland.wallpaper = $new_file' "$tmpfile" > "$CONF_GLOBAL"
+		jq --arg new_file "$@" '.wallpaper = $new_file' "$tmpfile" > "$CONF_GLOBAL"
 		cp -f "$folder/$*" "$folder/.wallpaper.png"
-		rm "$tmpfile"
 		hyprctl hyprpaper unload all && killall hyprpaper; run hyprpaper
 		exit 0
 	}
@@ -240,34 +283,33 @@ wallpaper () {
 			"next") _next ;;
 			"prev") _prev ;;
 		esac
-	done	
-
-	
+	done
 }
 
 
 volume () {
 	local current_volume cmd
 
-	current_volume=$(amixer -D pulse sget Master | tail -1 | cut -d '[' -f 2 | cut -d '%' -f 1)
+	current_volume=$(amixer -D pulse sget Master | tail -1 | awk '{ print $5 }' | grep -o '[0-9]\+')
 
 	for cmd in "$@"; do
 		case "$cmd" in
-			"inc") [ "$current_volume" -lt 100 ] && pactl -- set-sink-volume 0 +2% ;;
-			"dec") [ "$current_volume" -gt 0 ] && pactl -- set-sink-volume 0 -2% ;;
-			"mute") pactl -- set-sink-mute 0 toggle ;;
+			"inc") (( current_volume < 100 )) && pactl set-sink-volume 0 +2% ;;
+			"dec") (( current_volume > 0 )) && pactl set-sink-volume 0 -2% ;;
+			"mute") pactl set-sink-mute 0 toggle ;;
 		esac
 	done
 }
 
 
 screenshot () {
-	local savedir filename notification cmd
-
-	savedir=/tmp
-	filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
-	notification=("Screenshot")
-	 
+	local filename
+	local notification=("Screenshot")
+	local savedir="/tmp"
+	
+    filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
+    trap 'rm -f $filename' EXIT
+	
 	_selection () {
 		if grim -g "$(slurp)" "$filename"; then
 			wl-copy < "$filename"
@@ -290,38 +332,69 @@ screenshot () {
 	done
 
 	[[ "$*" =~ "-s" ]] || notify "${notification[@]}"
+    exit 0
 }
 
 
 bar () {
-	local notification cmd
-	
-	notification=("Waybar")
+    local config_files=("$HOME/dotfiles/waybar/config" "$HOME/dotfiles/waybar/style.css")
+	local notification=("Waybar")
 
 	_start () {
-		pidof waybar >/dev/null || run waybar
+        pidof waybar >/dev/null || run waybar
+        while true; do
+            inotifywait -e modify "${config_files[@]}"
+            mainctl waybar reload -s
+        done
 	}
 
 	_stop () {
 		pidof waybar >/dev/null && run killall waybar
 	}
 
+	_toggle () {
+		if pidof waybar >/dev/null; then
+			_stop
+		else
+			_start
+		fi
+	}
+
+	_reload () {
+		_stop
+		sleep 0.7
+		_start
+		notification+=("Configuration reloaded.")
+	}
+
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") if pidof waybar >/dev/null; then _stop; else _start; fi ;;
-			"reload") _stop; sleep 0.7; _start; notification+=("Configuration reloaded.") ;;
+			"toggle") _toggle ;;
+			"reload") _reload ;;
 		esac
 	done
 
-	[ ${#notification[@]} -gt 1 ] && notify "${notification[@]}"
+	(( ${#notification[@]} > 1 )) && notify "${notification[@]}"
 }
 
+# Runs when hyprland starts, checks toggles in CONF_GLOBAL and runs function if set to true. Also bound to Mod+Shift+R.
+boot () {
+	local toggles
+	toggles=$(jq '.toggles' "$CONF_GLOBAL")
 
-boot() {
-	[ "$(jq -r '.toggles.gamemode' "$CONF_GLOBAL")" = true ] && mainctl gamemode start -s
-	[ "$(jq -r '.toggles.gammastep' "$CONF_GLOBAL")" = true ] && mainctl gamma start -s
+	_run_enabled () {
+		local toggle=$1
+		local command=$2
+
+		if [[ $(jq -r ".$toggle" <<< "$toggles") = true ]]; then
+			mainctl "$command" start -s
+		fi
+	}
+
+	_run_enabled 'gamemode' 'gamemode'
+	_run_enabled 'gammastep' 'gamma'
 }
 
 
@@ -339,7 +412,6 @@ main () {
 		"screenshot") screenshot "${args[@]}" ;;
 		"waybar") bar "${args[@]}" ;;
 		"boot") boot ;;
-		"help"|"-h") usage ;;
 	esac
 }
 

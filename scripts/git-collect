@@ -1,9 +1,19 @@
 #!/bin/bash
 
-gitDir=/home/coen/github
-dotsDir=/home/coen/dotfiles
-scriptDir=/home/coen/scripts
+collect_files() {
+    local files=("$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.bash_aliases")
+    local dest=/home/coen/github
+    local dotsDir=/home/coen/dotfiles
+    local scriptDir=/home/coen/scripts
 
-cp "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.bash_aliases" "$gitDir" 
-if ! rsync -aLK --delete "$dotsDir" "$gitDir"; then echo "Failed to sync dotfiles!"; fi
-if ! rsync -aLK --delete "$scriptDir" "$gitDir"; then echo "Failed to sync scripts!"; fi
+    cp "${files[@]}" "$dest"
+
+    if rsync -aLK --delete "$dotsDir" "$dest" && rsync -aLK --delete "$scriptDir" "$dest"; then
+        return 0
+    else
+        echo "Failed to sync dotfiles or scripts to $dest!"
+        return 1
+    fi
+}
+
+collect_files

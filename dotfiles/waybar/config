@@ -97,9 +97,9 @@
 
     "custom/clock": {
         "return-type": "json",
-        "exec": "~/dotfiles/waybar/modules/clock.sh",
+        "exec": "$HOME/dotfiles/waybar/modules/clock.py",
         "format": "{}",
-        "interval": 1,
+        "interval": 2,
         "tooltip": true,
         "format-icons": [""]
     },
@@ -150,7 +150,10 @@
         "format": "{} {icon}",
         "interval": 120,
         "tooltip": true,
-        "format-icons": [""]
+        "format-icons": {
+            "connected": "",
+            "error": ""
+        }
     },
 
     "hyprland/window": {
