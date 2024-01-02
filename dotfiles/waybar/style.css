@@ -51,7 +51,7 @@ window#waybar {
 	padding: 0 50px;
 	color: @txt-highlight;
 	text-shadow: 0 0 7px rgba(255,255,255,0.6);
-	background: rgba(255,255,255,0.05);
+	background: rgba(255,255,255,0.06);
 }
 
 #workspaces button:hover {
@@ -85,5 +85,5 @@ tooltip label {
 }
 
 .modules-right .warning {
-    color: #d55;
+    color: #e44;
 }

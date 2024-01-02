@@ -54,26 +54,24 @@ notify () {
 }
 
 gamma () {
-	local lockfile notification cmd
+	local cmd
 
-	lockfile="/tmp/gamma.lock"
+	local lockfile="/tmp/gamma.lock"
 	[ -f "$lockfile" ] && exit 0
 
-    touch "$lockfile"
+    touch $lockfile
     trap 'rm -f $lockfile' EXIT
-    
-	notification=("Gammastep")
+
+	local notification=("Gammastep")
 
 	_start () {
-		pidof gammastep >/dev/null && exit 0
-		gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
+		run gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gammastep = true' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gammastep enabled.")
 	}
 
 	_stop () {
-		pidof gammastep >/dev/null || exit 0
 		killall gammastep
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gammastep = false' "$lockfile" > "$CONF_GLOBAL"
@@ -103,8 +101,8 @@ gamma () {
 
 
 idle () {
-	local timeout notification on_idle on_resume cmd
-	notification=("Swayidle")
+	local timeout on_idle on_resume cmd
+	local notification=("Swayidle")
 
 	_start () {
 		pidof swayidle >/dev/null && exit 0
@@ -142,15 +140,15 @@ idle () {
 
 
 gamemode () {
-	local lockfile notification cmd
+	local cmd
 
-	lockfile="/tmp/gamemode.lock"
+	local lockfile="/tmp/gamemode.lock"
 	[ -f "$lockfile" ] && exit 0
 
     touch $lockfile
     trap 'rm -f $lockfile' EXIT
 
-	notification=("Gamemode")
+	local notification=("Gamemode")
 
 	_start () {
 		local actions=(
@@ -337,7 +335,7 @@ screenshot () {
 
 
 bar () {
-    local config_files=("$HOME/dotfiles/waybar/config" "$HOME/dotfiles/waybar/style.css")
+    local config_files=("$HOME/dotfiles/waybar/config" "$HOME/dotfiles/waybar/style.css" "$HOME/dotfiles/waybar/colors.css")
 	local notification=("Waybar")
 
 	_start () {

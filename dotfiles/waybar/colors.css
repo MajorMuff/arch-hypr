@@ -1,4 +1,4 @@
-@define-color bar-bg alpha(#000000, 0.1);
+@define-color bar-bg alpha(#000000, 0.15);
 
 @define-color txt-default #c1c1c1;
 @define-color txt-highlight #f1f1f1;
