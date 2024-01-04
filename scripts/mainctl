@@ -43,7 +43,7 @@ Usage:   mainctl [module] [function] (opts)
     mainctl gamemode toggle   - Toggle gamemode on or off depending on current state
     mainctl volume inc        - Increase volume by 2%%
     mainctl screenshot full   - Fullscreen screenshot, copy to clipboard\x1b[0m
-    
+
 "
     exit 0
 }
@@ -65,6 +65,7 @@ gamma () {
 	local notification=("Gammastep")
 
 	_start () {
+        pidof -q "gammastep" && exit 0
 		run gammastep -t "$(jq '.gammastep.temp_day' "$CONF_GLOBAL"):$(jq '.gammastep.temp_night' "$CONF_GLOBAL")" -l "$(jq '.location.latitude' "$CONF_PRIVATE"):$(jq '.location.longtitude' "$CONF_PRIVATE")"
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gammastep = true' "$lockfile" > "$CONF_GLOBAL"
@@ -72,25 +73,23 @@ gamma () {
 	}
 
 	_stop () {
-		killall gammastep
+        pidof -q "gammastep" || exit 0
+		kill "$(pidof gammastep)"
 		cp -f "$CONF_GLOBAL" "$lockfile"
 		jq '.toggles.gammastep = false' "$lockfile" > "$CONF_GLOBAL"
 		notification+=("Gammastep disabled.")
-	}
-
-	_toggle () {
-		if pidof gammastep >/dev/null; then
-			_stop
-		else
-			_start
-		fi
 	}
 
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") _toggle ;;
+			"toggle")
+                if pidof -q gammastep; then
+                    _stop
+                else
+                    _start
+                fi ;;
 		esac
 	done
 
@@ -105,7 +104,7 @@ idle () {
 	local notification=("Swayidle")
 
 	_start () {
-		pidof swayidle >/dev/null && exit 0
+		pidof -q swayidle && exit 0
 		timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
 		on_idle=$(jq -r '.swayidle.actions.idle' "$CONF_GLOBAL")
 		on_resume=$(jq -r '.swayidle.actions.resume' "$CONF_GLOBAL")
@@ -114,24 +113,21 @@ idle () {
 	}
 
 	_stop () {
-		pidof swayidle >/dev/null || exit 0
+		pidof -q swayidle || exit 0
 		killall swayidle
 		notification+=("Swayidle disabled.")
-	}
-
-	_toggle () {
-		if pidof swayidle >/dev/null; then
-			_stop
-		else
-			_start
-		fi
 	}
 
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") _toggle ;;
+			"toggle")
+                if pidof -q swayidle; then
+                    _stop
+                else
+                    _start
+                fi ;;
 		esac
 	done
 
@@ -203,20 +199,16 @@ gamemode () {
 		notification+=("Gamemode disabled.")
 	}
 
-	_toggle () {
-		if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then
-			_stop
-		else
-			_start
-		fi
-	}
-
 	for cmd in "$@"; do
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") _toggle ;;
-				
+			"toggle")
+                if [ "$(jq -r ".toggles.gamemode" "$CONF_GLOBAL")" = "true" ]; then
+			        _stop
+                else
+                    _start
+                fi ;;
 		esac
 	done
 
@@ -227,61 +219,55 @@ gamemode () {
 
 
 wallpaper () {
-	local folder listfile current tmpfile num j cmd
+    local current tmpfile cmd
 
     tmpfile=$(mktemp)
     trap 'rm -f $tmpfile' EXIT
 
-	folder="$HOME/Pictures/wallpapers"
-	listfile="$folder/.list"
-	ls -1 "$folder" > "$folder/.list"
-	current=$(jq -r '.wallpaper' "$CONF_GLOBAL")
-	mapfile -t list < "$listfile"
+    local folder="$HOME/Pictures/wallpapers"
+    mapfile -t list <<< "$(ls -1 "$folder")"
+    current=$(jq -r '.wallpaper' "$CONF_GLOBAL")
 
-	_done () {
-		cp "$CONF_GLOBAL" "$tmpfile" &&
-		jq --arg new_file "$@" '.wallpaper = $new_file' "$tmpfile" > "$CONF_GLOBAL"
-		cp -f "$folder/$*" "$folder/.wallpaper.png"
-		hyprctl hyprpaper unload all && killall hyprpaper; run hyprpaper
-		exit 0
-	}
+    _next () {
+        if [ "$current" = "${list[-1]}" ]; then
+            new="${list[0]}"
+        else
+            for (( i=0; i < ${#list[@]}; i++ )); do
+                if [ "${list[i]}" = "$current" ]; then
+                    ((i++))
+                    new="${list[i]}"
+                    break
+                fi
+            done
+        fi
+    }
 
-	_next () {
-		num=${#list[@]}
-		j=$(( num-1 ))
-		for ((i=0;i<=j;i++)); do
-			if [ "${list[i]}" = "$current" ]; then
-				if [ $i -eq $j ]; then
-					i=0
-				else
-					(( i++ ))
-				fi
-				_done "${list[i]}"
-			fi
-		done
-	}
+    _prev () {
+        if [ "$current" = "${list[0]}" ]; then
+            new="${list[-1]}"
+        else
+            for (( i=${#list[@]}; i > 0; i-- )); do
+                if [ "${list[i]}" = "$current" ]; then
+                    ((i--))
+                    new="${list[i]}"
+                    break
+                fi
+            done
+        fi
+    }
 
-	_prev () {
-		num=${#list[@]}
-		j=$(( num-1 ))
-		for ((i=j;i>=0;i--)); do
-			if [ "${list[i]}" = "$current" ]; then
-				if [ $i -eq 0 ]; then
-					i=$j
-				else
-					(( i-- ))
-				fi
-				_done "${list[i]}"
-			fi
-		done
-	}
+    for cmd in "$@"; do
+        case "$cmd" in
+            "next") _next ;;
+            "prev") _prev ;;
+        esac
+    done
 
-	for cmd in "$@"; do
-		case "$cmd" in
-			"next") _next ;;
-			"prev") _prev ;;
-		esac
-	done
+    cp "$CONF_GLOBAL" "$tmpfile"
+    jq --arg new_file "$new" '.wallpaper = $new_file' "$tmpfile" > "$CONF_GLOBAL"
+    cp -f "$folder/$new" "$folder/.wallpaper.png"
+    hyprctl hyprpaper unload all && killall hyprpaper; run hyprpaper
+    exit 0
 }
 
 
@@ -303,23 +289,20 @@ volume () {
 screenshot () {
 	local filename
 	local notification=("Screenshot")
-	local savedir="/tmp"
 	
-    filename="$savedir/$(date +'%Y%m%d-%H%M%S').png"
+    filename="/tmp/$(date +'%Y%m%d-%H%M%S').png"
     trap 'rm -f $filename' EXIT
 	
 	_selection () {
-		if grim -g "$(slurp)" "$filename"; then
-			wl-copy < "$filename"
-			notification+=("Copied to clipboard.")
-		fi
+		grim -g "$(slurp)" "$filename"
+        wl-copy < "$filename"
+        notification+=("Copied to clipboard.")
 	}
 			
 	_fullscreen () { 
-		if grim "$filename"; then
-			wl-copy < "$filename"
-			notification+=("Copied to clipboard.")
-		fi
+		grim "$filename"
+        wl-copy < "$filename"
+        notification+=("Copied to clipboard.")
 	}
 
 	for cmd in "$@"; do
@@ -335,27 +318,14 @@ screenshot () {
 
 
 bar () {
-    local config_files=("$HOME/dotfiles/waybar/config" "$HOME/dotfiles/waybar/style.css" "$HOME/dotfiles/waybar/colors.css")
 	local notification=("Waybar")
 
 	_start () {
-        pidof waybar >/dev/null || run waybar
-        while true; do
-            inotifywait -e modify "${config_files[@]}"
-            mainctl waybar reload -s
-        done
+        pidof -q waybar || run waybar
 	}
 
 	_stop () {
-		pidof waybar >/dev/null && run killall waybar
-	}
-
-	_toggle () {
-		if pidof waybar >/dev/null; then
-			_stop
-		else
-			_start
-		fi
+		pidof -q waybar && run killall waybar
 	}
 
 	_reload () {
@@ -369,15 +339,47 @@ bar () {
 		case "$cmd" in
 			"start") _start ;;
 			"stop") _stop ;;
-			"toggle") _toggle ;;
-			"reload") _reload ;;
+            "reload") _reload ;;
+			"toggle")
+                if pidof -q waybar; then
+                    _stop
+                else
+                    _start
+                fi ;;
 		esac
 	done
 
 	(( ${#notification[@]} > 1 )) && notify "${notification[@]}"
 }
 
-# Runs when hyprland starts, checks toggles in CONF_GLOBAL and runs function if set to true. Also bound to Mod+Shift+R.
+
+toggle_display () {
+    local lockfile=/tmp/disp.lock
+    [ -f $lockfile ] && exit 0
+
+    local disp_state
+    local notification=("DPMS")
+    
+    touch $lockfile
+    trap 'rm -f $lockfile' EXIT
+
+    disp_state=$(hyprctl monitors | awk '/dpmsStatus/ {print $NF}' | tail -1)
+    if (( disp_state == 1 )); then
+        notification+=("Killed display on DP-2.")
+        sleep 0.5
+        hyprctl dispatch dpms off DP-2
+    else
+        notification+=("Enabling display on DP-2.")
+        sleep 0.5
+        hyprctl dispatch dpms on DP-2
+    fi
+
+    [[ "$*" =~ '-s' ]] || notify "${notification[@]}"
+    sleep 10
+    exit 0
+}
+
+# Checks toggles in CONF_GLOBAL at boot, also bound to Mod+Shift+R
 boot () {
 	local toggles
 	toggles=$(jq '.toggles' "$CONF_GLOBAL")
@@ -409,6 +411,7 @@ main () {
 		"volume") volume "${args[@]}" ;;
 		"screenshot") screenshot "${args[@]}" ;;
 		"waybar") bar "${args[@]}" ;;
+        "display") toggle_display "${args[@]}" ;;
 		"boot") boot ;;
 	esac
 }

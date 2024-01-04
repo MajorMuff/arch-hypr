@@ -12,7 +12,7 @@
 
 * {
 	all: unset;
-	font-family: FontAwesome, Source Code Pro, Roboto, Helvetica, Arial, sans-serif;
+	font-family: SourceCodePro, FontAwesome5Free, Helvetica, Arial, sans-serif;
 	font-size: 10pt;
 }
 
@@ -86,4 +86,13 @@ tooltip label {
 
 .modules-right .warning {
     color: #e44;
+}
+
+#custom-quit, #custom-reboot, #custom-display {
+    padding: 5px 10px;
+    color: alpha(#ffffff, 0.4);
+}
+
+#custom-quit {
+    margin-left: 10px;
 }

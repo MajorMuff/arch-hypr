@@ -15,15 +15,32 @@ wb_network () {
         icon="error"
     fi
     
-    printf -v kb_up "%'.0d" "$(bc <<< "$(cat /sys/class/net/enp34s0/statistics/tx_bytes) / 1024")"
-    printf -v kb_dn "%'.0d" "$(bc <<< "$(cat /sys/class/net/enp34s0/statistics/rx_bytes) / 1024")"
+    kb_dn=$(bc <<< "$(cat /sys/class/net/enp34s0/statistics/rx_bytes) / 1024")
+    if (( kb_dn < 100000 )); then
+        dn=$kb_dn
+        dn_unit="KB"
+    else
+        dn=$(bc -l <<< "$kb_dn / 1024" | cut -d. -f1)
+        dn_unit="MB"
+    fi
+    printf -v dn "%'.0d" "$dn"
+
+    kb_up=$(bc <<< "$(cat /sys/class/net/enp34s0/statistics/tx_bytes) / 1024")
+    if (( kb_up < 100000 )); then
+        up=$kb_up
+        up_unit="KB"
+    else
+        up=$(bc -l <<< "$kb_up / 1024" | cut -d. -f1)
+        up_unit="MB"
+    fi
+    printf -v up "%'.0d" "$up"
 
     printf -v tooltip "Link speed : %s\nLocal IP   : %s\nPublic IP  : %s\n\nSent       : %s\nReceived   : %s" \
         "${link_speed//,/.} MB" \
         "$local_ip" \
         "$public_ip" \
-        "${kb_up//,/.} KB" \
-        "${kb_dn//,/.} KB"
+        "${up//,/.} $up_unit" \
+        "${dn//,/.} $dn_unit"
 
     jq -nc \
         --arg text "$local_ip" \

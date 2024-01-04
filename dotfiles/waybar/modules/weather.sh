@@ -14,16 +14,18 @@ wb_weather () {
     precipitation=$(jq -r ".precipitation" <<< "$results")
     is_day=$(jq -r ".is_day" <<< "$results")
 
-    if [[ $(bc <<< "precipitation > 0.15") -eq 1 ]]; then
-        icon='rain'
-    elif (( cloud_cover > 40 )); then
-        icon='clouds'
+    if (( is_day == 1 )); then
+        icon="day_"
     else
-        if (( is_day == 1 )); then
-            icon='clear_day'
-        else
-            icon='clear_night'
-        fi
+        icon="night_"
+    fi
+
+    if [[ $(bc <<< "precipitation > 0.15") -eq 1 ]]; then
+        icon+='rain'
+    elif (( cloud_cover > 40 )); then
+        icon+='clouds'
+    else
+        icon+="clear"
     fi
 
     printf -v tooltip "Temperature   : %s°C\nCloud cover   : %s%%\nPrecipitation : %.1fmm" \

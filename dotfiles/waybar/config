@@ -73,20 +73,27 @@
         "modules": [
             "custom/power",
             "custom/quit",
-            "custom/reboot"
+            "custom/reboot",
+            "custom/display"
         ]
     },
 
     "custom/quit": {
-        "format": "󰗼",
+        "format": "",
         "tooltip": false,
         "on-click": "hyprctl dispatch exit"
     },
 
     "custom/reboot": {
-        "format": "󰜉",
+        "format": "",
         "tooltip": false,
         "on-click": "reboot"
+    },
+
+    "custom/display": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "mainctl display"
     },
 
     "custom/power": {
@@ -129,10 +136,12 @@
         "interval": 240,
         "tooltip": true,
         "format-icons": {
-            "rain": "",
-            "clouds": " ",
-            "clear_day": "",
-            "clear_night": ""
+            "day_rain": "",
+            "night_rain": "",
+            "day_clouds": "",
+            "night_clouds": "",
+            "day_clear": "",
+            "night_clear": ""
         }
     },
 
