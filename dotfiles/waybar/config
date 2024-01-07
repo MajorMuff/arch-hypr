@@ -17,6 +17,8 @@
         "tray",
     	"pulseaudio",
         "custom/separator",
+    	"custom/disk",
+        "custom/separator",
     	"custom/cpu",
         "custom/separator",
     	"custom/memory",
@@ -106,10 +108,20 @@
         "return-type": "json",
         "exec": "$HOME/dotfiles/waybar/modules/clock.py",
         "format": "{}",
-        "interval": 2,
+        "interval": 1,
         "tooltip": true,
         "format-icons": [""]
     },
+
+    "custom/disk": {
+        "return-type": "json",
+		"exec": "~/dotfiles/waybar/modules/disk.sh",
+        "format": "{} {icon}",
+		"interval": 300,
+		"tooltip": true,
+        "format-icons": [""]
+	},
+	
 
 	"custom/cpu": {
         "return-type": "json",
@@ -126,14 +138,14 @@
         "format": "{} {icon}",
         "interval": 2,
         "tooltip": true,
-        "format-icons": [" "]
+        "format-icons": [""]
     },
 
     "custom/weather": {
         "return-type": "json",
         "exec": "~/dotfiles/waybar/modules/weather.sh",
         "format": "{} {icon}",
-        "interval": 240,
+        "interval": 300,
         "tooltip": true,
         "format-icons": {
             "day_rain": "",
@@ -156,7 +168,7 @@
     "custom/network": {
         "return-type": "json",
         "exec": "~/dotfiles/waybar/modules/network.sh",
-        "format": "{} {icon}",
+        "format": "{}",
         "interval": 120,
         "tooltip": true,
         "format-icons": {
@@ -166,8 +178,8 @@
     },
 
     "hyprland/window": {
-        "format": "    {}    ",
-    	"max-length": 300,
+        "format": "{}",
+    	"max-length": 80,
     	"separate-outputs": true,
     	"tooltip": false
     },

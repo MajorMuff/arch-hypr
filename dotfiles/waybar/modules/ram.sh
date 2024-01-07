@@ -13,10 +13,12 @@ wb_ram () {
     printf -v text "%.1f%%" "$perc"
     tooltip=$(
         printf "<span line_height=\"1.4\" color=\"#ffffff\">%-21s %-8s %-6s</span>\n" "PROCESS" "PID" "MEM"
+        c="CCCCCC"
         while read -r pid rss command; do 
-            printf "%-21s %-8s %-6s\n" "$command" "$pid" "$rss"
+            printf "<span color=\"#${c}\">%-21s %-8s %-6s</span>\n" "$command" "$pid" "$rss"
+            c=$(bc <<< "obase=16;ibase=16;${c}-141414")
         done < <(
-            ps --no-headers -A -o pid -o rss -o comm:21 --sort=-rss | head -5 | awk 'NR>0 {$2=int($2/1024)"M";}{ print;}'
+            ps --no-headers -A -o pid -o rss -o comm:21 --sort=-rss | head -8 | awk 'NR>0 {$2=int($2/1024)"M";}{ print;}'
         )
     )
     

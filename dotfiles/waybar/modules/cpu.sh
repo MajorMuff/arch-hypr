@@ -10,10 +10,12 @@ wb_cpu () {
 
     tooltip=$(
         printf "<span line_height=\"1.4\" color=\"#ffffff\">%-21s %-8s %-6s</span>\n" "PROCESS" "PID" "CPU"
+        c="CCCCCC"
         while read -r pid cpu command; do 
-            printf "%-21s %-8s %-6s\n" "$command" "$pid" "$cpu"
+            printf "<span color=\"#${c}\">%-21s %-8s %-6s</span>\n" "$command" "$pid" "$cpu"
+            c=$(bc <<< "obase=16;ibase=16;${c}-141414")
         done < <(
-            ps --no-headers -A -o pid -o pcpu -o comm:21 --sort=-pcpu | head -5
+            ps --no-headers -A -o pid -o pcpu -o comm:21 --sort=-pcpu | head -8
         )
     )
     

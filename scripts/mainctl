@@ -11,7 +11,7 @@
 CONF_GLOBAL="$HOME/dotfiles/global.json"
 CONF_PRIVATE="$HOME/dotfiles/private.json"
 
-usage() {
+usage () {
     printf "
 Usage:   mainctl [module] [function] (opts)
 
@@ -256,10 +256,15 @@ wallpaper () {
         fi
     }
 
+    _random () {
+        new=${list[ $RANDOM % ${#list[@]} ]}
+    }
+
     for cmd in "$@"; do
         case "$cmd" in
             "next") _next ;;
             "prev") _prev ;;
+            "random") _random ;;
         esac
     done
 
@@ -384,6 +389,8 @@ boot () {
 	local toggles
 	toggles=$(jq '.toggles' "$CONF_GLOBAL")
 
+    local notification=("Hyprland")
+
 	_run_enabled () {
 		local toggle=$1
 		local command=$2
@@ -393,8 +400,15 @@ boot () {
 		fi
 	}
 
+    [[ "$*" =~ "-s" ]] || hyprctl reload && sleep 0.3
 	_run_enabled 'gamemode' 'gamemode'
 	_run_enabled 'gammastep' 'gamma'
+
+    [[ $(jq -r ".random_wp" <<< "$toggles") = true ]] && run mainctl wallpaper random
+
+    notification+=("Reloaded global configuration.")
+    [[ "$*" =~ "-s" ]] || notify "${notification[@]}"
+    exit 0
 }
 
 
@@ -412,7 +426,7 @@ main () {
 		"screenshot") screenshot "${args[@]}" ;;
 		"waybar") bar "${args[@]}" ;;
         "display") toggle_display "${args[@]}" ;;
-		"boot") boot ;;
+		"boot") boot "${args[@]}" ;;
 	esac
 }
 

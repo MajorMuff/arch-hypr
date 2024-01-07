@@ -16,7 +16,7 @@ hex_rgb () {
 
 print_fetch () {
 	local global_conf=~/dotfiles/global.json
-	local arr_hex rgb s c r uptime ram
+	local arr_hex rgb s c uptime ram
 
 	read -ra arr_hex <<< "$(jq -r '.fetch.colors' $global_conf)"
 
@@ -26,7 +26,7 @@ print_fetch () {
 		c+=("$s")
 	done
 
-	r="\x1b[0m"
+	local r="\x1b[0m"
 
 	p () {
 		local e
@@ -40,33 +40,26 @@ print_fetch () {
 		fi
 	}
 	
-	uptime=$(uptime -p | sed 's/up //')
-	ram=$(free -m | grep 'Mem' | xargs | cut -d ' ' -f 3 | rev | sed 's/.../&./g;s/\.$//' | rev)
+    uptime=$(uptime | awk '{print $1}')
+	printf -v ram "%'.0f" "$(free -m | awk '/Mem/ { print $3 }')"
 	
 	p
-
-	if ! [[ $* == *-t* ]]; then
-		p 0 "    ___      ___"
-		p 0 "   |\"  \    /\"  | ⊏"
-		p 1 "    \   \  //   | ⊓"
-		p 2 "    /\   \/.    | ⊐"
-		p 3 "   |: \.        | ⊔"
-		p 4 "   |.  \    /:  | ⊏"
-		p 5 "   |___|\__/|___| ⊓"
-		p
-	fi
-	
-	if ! [[ $* == *-l* ]]; then
-		p 0 "   user         $USER"
-		p 1 "   host         $HOSTNAME"
-		p 2 "   terminal     $TERM"
-		p 3 "   shell        $SHELL"
-		p 4 "   uptime       $uptime"
-		p 5 "   ram usage    ${ram}MiB"
-		p
-	fi
-
+    p 0 "    ___      ___"
+    p 0 "   |\"  \    /\"  | ⊏"
+    p 1 "    \   \  //   | ⊓"
+    p 2 "    /\   \/.    | ⊐"
+    p 3 "   |: \.        | ⊔"
+    p 4 "   |.  \    /:  | ⊏"
+    p 5 "   |___|\__/|___| ⊓"
+    p
+    p 0 "   user         $USER"
+    p 1 "   host         $HOSTNAME"
+    p 2 "   terminal     $TERM"
+    p 3 "   shell        $SHELL"
+    p 4 "   uptime       $uptime"
+    p 5 "   ram usage    ${ram//,/.}M"
+    p
 	p
 }
 
-print_fetch "$@"
+print_fetch

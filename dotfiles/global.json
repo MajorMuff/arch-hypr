@@ -30,12 +30,13 @@
     "temp_night": 5000
   },
   "fetch": {
-    "colors": "de50f9 c95af9 b364f9 9771f9 807bf9 6588f9 4f93f9",
-    "colors2": "ffadad ffd6a5 fdffb6 caffbf 9bf6ff bdb2ff"
+    "colors1": "de50f9 c95af9 b364f9 9771f9 807bf9 6588f9 4f93f9",
+    "colors": "ffadad ffd6a5 fdffb6 caffbf 9bf6ff bdb2ff"
   },
   "toggles": {
     "gamemode": true,
-    "gammastep": false
+    "gammastep": false,
+    "random_wp": false
   },
-  "wallpaper": "9z4viw1pxf8a1.png"
+  "wallpaper": "cdqb4kqa47da1.png"
 }
