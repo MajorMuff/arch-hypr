@@ -30,8 +30,11 @@ Usage:   mainctl [module] [function] (opts)
   screenshot  [full|select] (-s)
     \x1b[38;2;150;150;150mCreate screenshot and copies to clipboard. [full] for full screen, [select] for selection only. (-s disables notifications)\x1b[0m
 
-  wallpaper   [next|prev]
-    \x1b[38;2;150;150;150mSwitch wallpaper from the ~/Pictures/wallpapers folder. [next] for next file in list, [prev] for previous file in list.\x1b[0m
+  wallpaper   [next|prev|random]
+    \x1b[38;2;150;150;150mSwitch wallpaper from the ~/Pictures/wallpapers folder (alphabetically). [next] for next file, [prev] for previous file, [random] for random file.\x1b[0m
+
+  display
+    \x1b[38;2;150;150;150mToggle secondary display on/off.\x1b[0m
 
   -h | help
     \x1b[38;2;150;150;150mDisplays this information and exits.\x1b[0m
@@ -225,6 +228,7 @@ wallpaper () {
     trap 'rm -f $tmpfile' EXIT
 
     local folder="$HOME/Pictures/wallpapers"
+    local hyprconf="$HOME/dotfiles/hypr/hyprpaper.conf"
     mapfile -t list <<< "$(ls -1 "$folder")"
     current=$(jq -r '.wallpaper' "$CONF_GLOBAL")
 
@@ -270,7 +274,7 @@ wallpaper () {
 
     cp "$CONF_GLOBAL" "$tmpfile"
     jq --arg new_file "$new" '.wallpaper = $new_file' "$tmpfile" > "$CONF_GLOBAL"
-    cp -f "$folder/$new" "$folder/.wallpaper.png"
+    sed -i "s/$current/$new/g" "$hyprconf"
     hyprctl hyprpaper unload all && killall hyprpaper; run hyprpaper
     exit 0
 }
@@ -351,6 +355,7 @@ bar () {
                 else
                     _start
                 fi ;;
+            "") usage ;;
 		esac
 	done
 

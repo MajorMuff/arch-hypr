@@ -15,7 +15,33 @@ wb_toggles () {
         fi
     done
 
-    printf -v tooltip "Gamemode  : Mod+G\nGammastep : Mod+R"
+    printf -v tooltip "Terminal               : $ + Q
+Launcher               : $ + Enter
+
+Reload waybar config   : $ + Shift + B
+Reload hyprland config : $ + Shift + R
+
+Windows
+  Move to workspace    : $ + Shift +  | 0-9
+  Move in workspace    : $ + Alt + 
+  Resize window        : $ + Ctrl + 
+  Split                : $ + J
+  Transparency         : $ + O
+  Float                : $ + V
+
+Toggles
+  Gamemode             : $ + G
+  Gammastep            : $ + R
+  Second display       : Ctrl + Shift + 2
+
+Wallpaper
+  Next                 : $ + ]
+  Previous             : $ + [
+
+Screenshot
+  Fullscreen           : $ + PrtScr
+  Selection            : $ + Shift + S"
+
 
     jq -nc \
         --arg text "$text" \

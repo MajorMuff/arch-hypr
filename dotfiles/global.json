@@ -35,7 +35,7 @@
   },
   "toggles": {
     "gamemode": true,
-    "gammastep": false,
+    "gammastep": true,
     "random_wp": false
   },
   "wallpaper": "cdqb4kqa47da1.png"
