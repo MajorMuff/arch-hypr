@@ -18,13 +18,6 @@
       "enabled": true
     }
   },
-  "swayidle": {
-    "timeout": 300,
-    "actions": {
-      "idle": "hyprctl dispatch dpms off;",
-      "resume": "hyprctl dispatch dpms on;"
-    }
-  },
   "gammastep": {
     "temp_day": 6500,
     "temp_night": 5000
@@ -35,7 +28,7 @@
   },
   "toggles": {
     "gamemode": true,
-    "gammastep": true,
+    "gammastep": false,
     "random_wp": false
   },
   "wallpaper": "cdqb4kqa47da1.png"

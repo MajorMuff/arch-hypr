@@ -103,22 +103,19 @@ gamma () {
 
 
 idle () {
-	local timeout on_idle on_resume cmd
-	local notification=("Swayidle")
+	local cmd
+	local notification=("Hypridle")
 
 	_start () {
-		pidof -q swayidle && exit 0
-		timeout=$(jq '.swayidle.timeout' "$CONF_GLOBAL")
-		on_idle=$(jq -r '.swayidle.actions.idle' "$CONF_GLOBAL")
-		on_resume=$(jq -r '.swayidle.actions.resume' "$CONF_GLOBAL")
-		swayidle timeout "$timeout" "$on_idle" resume "$on_resume" &
-		notification+=("Swayidle enabled.")
+		pidof -q hypridle && exit 0
+		hypridle -q &
+		notification+=("Hypridle enabled.")
 	}
 
 	_stop () {
-		pidof -q swayidle || exit 0
-		killall swayidle
-		notification+=("Swayidle disabled.")
+		pidof -q hypridle || exit 0
+		killall hypridle
+		notification+=("Hypridle disabled.")
 	}
 
 	for cmd in "$@"; do
@@ -126,7 +123,7 @@ idle () {
 			"start") _start ;;
 			"stop") _stop ;;
 			"toggle")
-                if pidof -q swayidle; then
+                if pidof -q hypridle; then
                     _stop
                 else
                     _start
